@@ -167,13 +167,14 @@ function getDiffObj(rec, fieldName) {
   return rec.diffs.find((d) => d.field === fieldName) || null;
 }
 
-function tdCell(rec, value, fieldName) {
+function tdCell(rec, value, fieldName, extraClass = "") {
   const diff = fieldName ? getDiffObj(rec, fieldName) : null;
   if (diff) {
     const tip = `Berbeda dengan Basis Data: ${diff.master}`;
-    return `<td class="cell-diff" title="${escapeHtml(tip)}">${escapeHtml(value || "-")}</td>`;
+    const cls = extraClass ? `${extraClass} cell-diff` : "cell-diff";
+    return `<td class="${cls}" title="${escapeHtml(tip)}">${escapeHtml(value || "-")}</td>`;
   }
-  return `<td>${escapeHtml(value || "-")}</td>`;
+  return extraClass ? `<td class="${extraClass}">${escapeHtml(value || "-")}</td>` : `<td>${escapeHtml(value || "-")}</td>`;
 }
 
 function renderStatusPill(statusText) {
@@ -297,14 +298,14 @@ function renderTable() {
     rowsHtml.push(`
       <tr class="data-row ${rec.has_diff ? "row-has-diff" : ""}">
         <td class="sticky-no">${idx + 1}</td>
+        ${tdCell(rec, rec.nkk, "NKK", "sticky-nkk")}
+        <td class="sticky-nik">${escapeHtml(rec.nik)}</td>
         <td class="sticky-nama nama-cell ${namaDiff ? "cell-diff" : ""}" title="${namaDiff ? escapeHtml("Basis Data: " + namaDiff.master) : ""}">
           <div class="nama-text">
             <span>${escapeHtml(rec.nama || "-")}</span>
             ${diffBadge}
           </div>
         </td>
-        <td>${escapeHtml(rec.nik)}</td>
-        ${tdCell(rec, rec.nkk, "NKK")}
         ${tdCell(rec, rec.tempat_lahir, "TEMPAT_LAHIR")}
         ${tdCell(rec, rec.tanggal_lahir, "TANGGAL_LAHIR")}
         ${tdCell(rec, rec.kelamin, "KELAMIN")}

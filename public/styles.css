@@ -817,27 +817,48 @@ body {
   background: #fef2f2;
 }
 
-/* Freeze Kolom No & NAMA saat geser ke kanan */
+/* Freeze Kolom No, NKK, NIK, dan NAMA saat geser ke kanan */
 .sticky-no {
   position: sticky;
   left: 0;
   z-index: 12;
-  width: 44px;
-  min-width: 44px;
+  width: 42px;
+  min-width: 42px;
+  max-width: 42px;
   text-align: center;
+}
+
+.sticky-nkk {
+  position: sticky;
+  left: 42px;
+  z-index: 12;
+  width: 132px;
+  min-width: 132px;
+  max-width: 132px;
+}
+
+.sticky-nik {
+  position: sticky;
+  left: 174px;
+  z-index: 12;
+  width: 132px;
+  min-width: 132px;
+  max-width: 132px;
 }
 
 .sticky-nama {
   position: sticky;
-  left: 44px;
+  left: 306px;
   z-index: 12;
-  min-width: 195px;
+  min-width: 190px;
   max-width: 240px;
-  box-shadow: 3px 0 8px -2px rgba(6, 40, 30, 0.12);
+  box-shadow: 3px 0 8px -2px rgba(6, 40, 30, 0.14);
   border-right: 1px solid var(--slate-200);
 }
 
 .data-table thead th.sticky-no,
+.data-table thead th.sticky-nkk,
+.data-table thead th.sticky-nik,
 .data-table thead th.sticky-nama {
   z-index: 30;
   background: var(--green-900);
