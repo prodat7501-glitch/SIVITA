@@ -98,7 +98,7 @@ function logout(silent = false) {
 /* ==================== DATA LOADING & FILTERING ==================== */
 async function loadData() {
   const tbody = $("table-body");
-  tbody.innerHTML = `<tr><td colspan="19" class="empty-cell">Memuat data Hasil Pengecekan DWH dari Google Sheets...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="19" class="empty-cell">Sedang Memuat Data...</td></tr>`;
   try {
     const res = await apiPost({ action: "get_data" });
     allRecords = Array.isArray(res.records) ? res.records : [];
@@ -169,7 +169,7 @@ function getDiffObj(rec, fieldName) {
 function tdCell(rec, value, fieldName) {
   const diff = fieldName ? getDiffObj(rec, fieldName) : null;
   if (diff) {
-    const tip = `Berbeda dengan Basis Data (Sheet 1): ${diff.master}`;
+    const tip = `Berbeda dengan Basis Data: ${diff.master}`;
     return `<td class="cell-diff" title="${escapeHtml(tip)}">${escapeHtml(value || "-")}</td>`;
   }
   return `<td>${escapeHtml(value || "-")}</td>`;
@@ -236,14 +236,14 @@ function renderInlineScreenshotPanel(rec) {
       .join("");
     diffBannerHtml = `
       <div class="ss-status-bar ss-status-diff">
-        <div class="ss-status-title">Peringatan Perbedaan dengan Basis Data (Sheet 1):</div>
+        <div class="ss-status-title">Peringatan Perbedaan dengan Basis Data:</div>
         <div class="ss-diff-chips">${items}</div>
       </div>
     `;
   } else {
     diffBannerHtml = `
       <div class="ss-status-bar ss-status-ok">
-        <strong>Status Kesesuaian Basis Data (Sheet 1):</strong> Seluruh elemen data sesuai dengan Basis Data Sheet 1.
+        <strong>Status Kesesuaian Basis Data:</strong> Seluruh elemen data sesuai dengan Basis Data.
       </div>
     `;
   }
@@ -286,7 +286,7 @@ function renderTable() {
     const isOpen = expandedRows.has(rec.sheet_row);
     const namaDiff = getDiffObj(rec, "NAMA");
     const diffBadge = rec.has_diff
-      ? `<span class="diff-pill" title="Terdapat ${rec.diffs.length} elemen berbeda dengan Sheet 1">! ${rec.diffs.length}</span>`
+      ? `<span class="diff-pill" title="Terdapat ${rec.diffs.length} elemen berbeda dengan Basis Data">! ${rec.diffs.length}</span>`
       : "";
 
     const editBtn = isAdmin
@@ -296,7 +296,7 @@ function renderTable() {
     rowsHtml.push(`
       <tr class="data-row ${rec.has_diff ? "row-has-diff" : ""}">
         <td class="sticky-no">${idx + 1}</td>
-        <td class="sticky-nama nama-cell ${namaDiff ? "cell-diff" : ""}" title="${namaDiff ? escapeHtml("Sheet 1: " + namaDiff.master) : ""}">
+        <td class="sticky-nama nama-cell ${namaDiff ? "cell-diff" : ""}" title="${namaDiff ? escapeHtml("Basis Data: " + namaDiff.master) : ""}">
           <div class="nama-text">
             <span>${escapeHtml(rec.nama || "-")}</span>
             ${diffBadge}
