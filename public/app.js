@@ -208,13 +208,39 @@ function logout(silent = false) {
   }
 }
 
+function normCmp(val) {
+  return String(val ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function enrichKabProvDiffs(records) {
+  return records.map((rec) => {
+    const ks = String(rec.kesimpulan || "").toUpperCase().trim();
+    if (ks !== "VALID" && ks !== "ANOMALI") return rec;
+
+    const diffs = Array.isArray(rec.diffs) ? [...rec.diffs] : [];
+    const hasField = (name) => diffs.some((d) => d.field === name);
+
+    const expectedKab = String(rec.master?.kab_kota || "").trim() || "GORONTALO";
+    const expectedProv = String(rec.master?.provinsi || "").trim() || "GORONTALO";
+
+    if (!hasField("KABUPATEN/KOTA") && normCmp(rec.kab_kota) !== normCmp(expectedKab)) {
+      diffs.push({ field: "KABUPATEN/KOTA", master: expectedKab, dwh: String(rec.kab_kota || "").trim() });
+    }
+    if (!hasField("PROVINSI") && normCmp(rec.provinsi) !== normCmp(expectedProv)) {
+      diffs.push({ field: "PROVINSI", master: expectedProv, dwh: String(rec.provinsi || "").trim() });
+    }
+
+    return { ...rec, diffs, has_diff: diffs.length > 0 };
+  });
+}
+
 /* ==================== DATA LOADING & FILTERING ==================== */
 async function loadData() {
   const tbody = $("table-body");
   tbody.innerHTML = `<tr><td colspan="20" class="empty-cell">Sedang Memuat Data...</td></tr>`;
   try {
     const res = await apiPost({ action: "get_data" });
-    allRecords = Array.isArray(res.records) ? res.records : [];
+    allRecords = enrichKabProvDiffs(Array.isArray(res.records) ? res.records : []);
     updateKpis();
     applyFiltersAndRender();
   } catch (err) {
@@ -444,8 +470,8 @@ function renderTable() {
         <td data-col="rw">${escapeHtml(formatRtRw3Digit(rec.rw, rec.kesimpulan))}</td>
         ${tdCell(rec, rec.kelurahan, "KELURAHAN", "", "kelurahan")}
         ${tdCell(rec, rec.kecamatan, "KECAMATAN", "", "kecamatan")}
-        <td data-col="kab_kota">${escapeHtml(rec.kab_kota || "-")}</td>
-        <td data-col="provinsi">${escapeHtml(rec.provinsi || "-")}</td>
+        ${tdCell(rec, rec.kab_kota, "KABUPATEN/KOTA", "", "kab_kota")}
+        ${tdCell(rec, rec.provinsi, "PROVINSI", "", "provinsi")}
         <td data-col="updated_at">${escapeHtml(rec.updated_at || "-")}</td>
         <td data-col="kategori_data">${escapeHtml(rec.kategori_data || "-")}</td>
         <td class="aksi-cell" data-col="aksi">
