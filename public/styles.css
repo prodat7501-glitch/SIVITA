@@ -118,16 +118,17 @@ body {
 }
 
 .hero-logo-wrap {
-  width: 78px;
-  height: 78px;
+  width: 82px;
+  height: 82px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.96);
-  padding: 6px;
+  background: transparent;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(167, 243, 208, 0.22);
   margin-bottom: 18px;
+  overflow: hidden;
 }
 
 .hero-logo {
