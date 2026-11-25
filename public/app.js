@@ -302,8 +302,6 @@ function renderTable() {
             ${diffBadge}
           </div>
         </td>
-        <td>${renderKesimpulanPill(rec.kesimpulan)}</td>
-        <td>${renderStatusPill(rec.status)}</td>
         <td>${escapeHtml(rec.nik)}</td>
         ${tdCell(rec, rec.nkk, "NKK")}
         ${tdCell(rec, rec.tempat_lahir, "TEMPAT_LAHIR")}
@@ -326,6 +324,8 @@ function renderTable() {
             </button>
           </div>
         </td>
+        <td>${renderKesimpulanPill(rec.kesimpulan)}</td>
+        <td>${renderStatusPill(rec.status)}</td>
       </tr>
     `);
 
