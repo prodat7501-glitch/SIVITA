@@ -1077,40 +1077,61 @@ body {
   font-size: 13.5px;
 }
 
-/* ==================== MODAL EDIT ==================== */
+/* ==================== MODAL EDIT (FLOATING & DRAGGABLE) ==================== */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(6, 40, 30, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  background: transparent;
+  pointer-events: none;
   z-index: 100;
 }
 
 .modal-card {
-  width: 100%;
-  max-width: 680px;
-  max-height: 92vh;
+  position: fixed;
+  top: 56px;
+  right: 24px;
+  width: 560px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 80px);
   overflow-y: auto;
   background: var(--white);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border: 1.5px solid rgba(11, 61, 46, 0.28);
+  box-shadow: 0 20px 55px rgba(6, 40, 30, 0.32);
+  pointer-events: auto;
 }
 
 .modal-header {
-  padding: 16px 20px;
+  padding: 13px 18px;
   background: var(--green-900);
   color: var(--white);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.modal-header.draggable-handle {
+  cursor: grab;
+}
+
+.modal-header.draggable-handle:active {
+  cursor: grabbing;
 }
 
 .modal-header h3 {
   margin: 0;
-  font-size: 15.5px;
+  font-size: 15px;
+}
+
+.drag-hint {
+  display: block;
+  font-size: 11px;
+  color: rgba(209, 250, 229, 0.8);
+  margin-top: 2px;
 }
 
 .icon-close {
@@ -1150,24 +1171,31 @@ body {
     grid-template-columns: 1fr;
     max-width: 440px;
   }
+
   .login-hero {
     display: none;
   }
+
   .mobile-brand {
     display: flex;
   }
+
   .login-form-panel {
     padding: 32px 26px 24px;
   }
+
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
   .inline-panel {
     grid-template-columns: 1fr;
   }
+
   .form-grid {
     grid-template-columns: 1fr;
   }
+
   .span-2 {
     grid-column: span 1;
   }

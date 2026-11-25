@@ -246,11 +246,14 @@
     </footer>
   </div>
 
-  <!-- MODAL EDIT DATA (KHUSUS ADMIN) -->
-  <div id="edit-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Edit Data Hasil Pengecekan DWH</h3>
+  <!-- MODAL EDIT DATA (KHUSUS ADMIN — FLOATING & DRAGGABLE) -->
+  <div id="edit-modal" class="modal-backdrop hidden" role="dialog" aria-modal="false">
+    <div id="edit-modal-card" class="modal-card">
+      <div id="edit-modal-header" class="modal-header draggable-handle" title="Tahan & geser untuk memindahkan jendela">
+        <div>
+          <h3>Edit Data Hasil Pengecekan DWH</h3>
+          <span class="drag-hint">Geser bilah ini untuk memindahkan posisi form</span>
+        </div>
         <button id="btn-close-modal" type="button" class="icon-close" aria-label="Tutup">&times;</button>
       </div>
       <form id="edit-form" class="modal-body">

@@ -540,6 +540,43 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("btn-close-modal").addEventListener("click", closeEditModal);
   $("btn-cancel-edit").addEventListener("click", closeEditModal);
 
+  // Fitur geser (drag & drop) jendela Edit Data agar tidak menghalangi tangkapan layar DWH
+  const modalCard = $("edit-modal-card");
+  const modalHeader = $("edit-modal-header");
+  if (modalCard && modalHeader) {
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    modalHeader.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("button")) return;
+      isDragging = true;
+      const rect = modalCard.getBoundingClientRect();
+      modalCard.style.right = "auto";
+      modalCard.style.left = `${rect.left}px`;
+      modalCard.style.top = `${rect.top}px`;
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      modalHeader.setPointerCapture(e.pointerId);
+    });
+
+    modalHeader.addEventListener("pointermove", (e) => {
+      if (!isDragging) return;
+      const maxLeft = Math.max(0, window.innerWidth - 120);
+      const maxTop = Math.max(0, window.innerHeight - 60);
+      const nextLeft = Math.min(maxLeft, Math.max(-modalCard.offsetWidth + 120, e.clientX - offsetX));
+      const nextTop = Math.min(maxTop, Math.max(0, e.clientY - offsetY));
+      modalCard.style.left = `${nextLeft}px`;
+      modalCard.style.top = `${nextTop}px`;
+    });
+
+    const stopDrag = () => {
+      isDragging = false;
+    };
+    modalHeader.addEventListener("pointerup", stopDrag);
+    modalHeader.addEventListener("pointercancel", stopDrag);
+  }
+
   $("edit-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const errEl = $("edit-error");
