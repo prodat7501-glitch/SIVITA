@@ -846,6 +846,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("filter-kesimpulan").addEventListener("change", applyFiltersAndRender);
   $("filter-status").addEventListener("change", applyFiltersAndRender);
   $("filter-verifikasi").addEventListener("change", applyFiltersAndRender);
+  $("btn-reset-filters").addEventListener("click", () => {
+    $("search-input").value = "";
+    $("filter-kecamatan").value = "ALL";
+    populateKelurahanFilter();
+    $("filter-kelurahan").value = "ALL";
+    $("filter-kesimpulan").value = "ALL";
+    $("filter-status").value = "ALL";
+    $("filter-verifikasi").value = "ALL";
+    applyFiltersAndRender();
+  });
   $("btn-refresh").addEventListener("click", loadData);
   $("btn-export-csv").addEventListener("click", downloadCsv);
   $("btn-export-xlsx").addEventListener("click", downloadExcel);
