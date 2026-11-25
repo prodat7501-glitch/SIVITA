@@ -204,6 +204,33 @@ module.exports = async function handler(req, res) {
     }
   }
 
+  // 4c. Tandai / Batalkan Verifikasi Massal (KHUSUS ADMIN)
+  if (action === "bulk_verify") {
+    if (session.role !== "admin") {
+      return res.status(403).json({
+        status: "error",
+        message: "Akses ditolak: Hanya akun Admin yang dapat memverifikasi data.",
+      });
+    }
+    const sheetRows = Array.isArray(body.sheet_rows)
+      ? body.sheet_rows.map(Number).filter((n) => Number.isInteger(n) && n >= 2)
+      : [];
+    if (!sheetRows.length) {
+      return res.status(400).json({ status: "error", message: "Pilih minimal satu baris data." });
+    }
+    try {
+      const gasRes = await callGas(webhookUrl, {
+        action: "sivita_bulk_verify",
+        sheet_rows: sheetRows,
+        verified: Boolean(body.verified),
+        actor: session.name || session.username,
+      });
+      return res.status(200).json(gasRes);
+    } catch (err) {
+      return res.status(502).json({ status: "error", message: err.message });
+    }
+  }
+
   // 5. Sinkronkan Data Sheet1 -> Hasil_DWH (KHUSUS ADMIN)
   if (action === "sync_from_sheet1") {
     if (session.role !== "admin") {

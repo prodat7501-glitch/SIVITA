@@ -240,11 +240,28 @@
           </div>
         </div>
 
+        <!-- BILAH AKSI MASSAL (MUNCUL SAAT ADMIN MENCENTANG BARIS) -->
+        <div id="bulk-action-bar" class="bulk-bar hidden">
+          <div class="bulk-bar-info">
+            <strong id="bulk-count-label">0 data dipilih</strong>
+          </div>
+          <div class="bulk-bar-actions">
+            <button id="btn-bulk-verify" type="button" class="btn btn-xs btn-verify">✓ Tandai Sudah Dicek</button>
+            <button id="btn-bulk-unverify" type="button" class="btn btn-xs btn-outline">✕ Batalkan Tanda Dicek</button>
+            <button id="btn-bulk-clear" type="button" class="btn btn-xs btn-outline">Batal Pilih</button>
+          </div>
+        </div>
+
         <div class="table-scroll">
           <table id="dwh-table" class="data-table">
             <thead>
               <tr>
-                <th class="sticky-no" data-col="no">No</th>
+                <th class="sticky-no" data-col="no">
+                  <label class="no-check-wrap">
+                    <input id="select-all-rows" type="checkbox" class="row-check admin-only hidden" title="Pilih semua baris yang tampil" />
+                    <span>No</span>
+                  </label>
+                </th>
                 <th class="sticky-nkk" data-col="nkk">NKK</th>
                 <th class="sticky-nik" data-col="nik">NIK</th>
                 <th class="sticky-nama" data-col="nama">NAMA</th>

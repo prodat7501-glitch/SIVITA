@@ -66,7 +66,7 @@ function applyColumnVisibility() {
   });
 
   // Hitung ulang posisi left sticky (No -> NKK -> NIK -> NAMA) jika NKK/NIK disembunyikan
-  let leftPx = 42; // Lebar kolom No
+  let leftPx = 60; // Lebar kolom No
   const nkkVisible = visibleCols.has("nkk");
   const nikVisible = visibleCols.has("nik");
 
@@ -109,6 +109,7 @@ let allRecords = [];
 let filteredRecords = [];
 const expandedRows = new Set();
 const zoomLevels = new Map(); // sheet_row -> zoom percent (default 100)
+const selectedRows = new Set(); // sheet_row yang dicentang admin untuk verifikasi massal
 
 const $ = (id) => document.getElementById(id);
 
@@ -202,6 +203,8 @@ function logout(silent = false) {
   allRecords = [];
   filteredRecords = [];
   expandedRows.clear();
+  selectedRows.clear();
+  updateBulkBar();
   showLogin();
   if (!silent) {
     $("login-password").value = "";
@@ -478,10 +481,72 @@ function renderInlineScreenshotPanel(rec) {
   `;
 }
 
+function updateBulkBar() {
+  const bar = $("bulk-action-bar");
+  const selectAll = $("select-all-rows");
+  if (!bar) return;
+  const isAdmin = currentUser && currentUser.role === "admin";
+  if (!isAdmin || selectedRows.size === 0) {
+    bar.classList.add("hidden");
+  } else {
+    bar.classList.remove("hidden");
+    $("bulk-count-label").textContent = `${selectedRows.size.toLocaleString("id-ID")} data dipilih`;
+  }
+  if (selectAll && isAdmin) {
+    const visibleSelectable = filteredRecords.length;
+    const checkedVisible = filteredRecords.filter((r) => selectedRows.has(r.sheet_row)).length;
+    selectAll.checked = visibleSelectable > 0 && checkedVisible === visibleSelectable;
+    selectAll.indeterminate = checkedVisible > 0 && checkedVisible < visibleSelectable;
+  }
+}
+
+async function runBulkVerify(verifiedFlag) {
+  const rows = Array.from(selectedRows);
+  if (!rows.length) return;
+  const btnV = $("btn-bulk-verify");
+  const btnU = $("btn-bulk-unverify");
+  const btnC = $("btn-bulk-clear");
+  btnV.disabled = true;
+  btnU.disabled = true;
+  btnC.disabled = true;
+  const activeBtn = verifiedFlag ? btnV : btnU;
+  const prevText = activeBtn.textContent;
+  activeBtn.textContent = "Menyimpan...";
+  try {
+    const res = await apiPost({
+      action: "bulk_verify",
+      sheet_rows: rows,
+      verified: verifiedFlag,
+    });
+    const updatedSet = new Set(res.sheet_rows || rows);
+    allRecords.forEach((r) => {
+      if (updatedSet.has(r.sheet_row)) {
+        r.verified = Boolean(res.verified);
+        r.verified_info = res.verified_info || "";
+      }
+    });
+    selectedRows.clear();
+    applyFiltersAndRender();
+    showBanner(
+      verifiedFlag
+        ? `Berhasil menandai ${res.updated_count || updatedSet.size} data sebagai Sudah Dicek!`
+        : `Berhasil membatalkan tanda verifikasi pada ${res.updated_count || updatedSet.size} data.`
+    );
+  } catch (err) {
+    showBanner(`Gagal verifikasi massal: ${err.message}`, true);
+  } finally {
+    btnV.disabled = false;
+    btnU.disabled = false;
+    btnC.disabled = false;
+    activeBtn.textContent = prevText;
+  }
+}
+
 function renderTable() {
   const tbody = $("table-body");
   if (!filteredRecords.length) {
     tbody.innerHTML = `<tr><td colspan="20" class="empty-cell">Tidak ada data yang cocok dengan filter pencarian.</td></tr>`;
+    updateBulkBar();
     return;
   }
 
@@ -490,6 +555,7 @@ function renderTable() {
 
   filteredRecords.forEach((rec, idx) => {
     const isOpen = expandedRows.has(rec.sheet_row);
+    const isSelected = isAdmin && selectedRows.has(rec.sheet_row);
     const namaDiff = getDiffObj(rec, "NAMA");
     const diffBadge = rec.has_diff
       ? `<span class="diff-pill" title="Terdapat ${rec.diffs.length} elemen berbeda dengan Basis Data">! ${rec.diffs.length}</span>`
@@ -501,10 +567,15 @@ function renderTable() {
     const editBtn = isAdmin
       ? `<button type="button" class="btn btn-xs btn-edit" data-edit-row="${rec.sheet_row}">Edit</button>`
       : "";
+    const checkHtml = isAdmin
+      ? `<input type="checkbox" class="row-check" data-select-row="${rec.sheet_row}" ${isSelected ? "checked" : ""} aria-label="Pilih baris ${idx + 1}" />`
+      : "";
 
     rowsHtml.push(`
-      <tr class="data-row ${rec.has_diff ? "row-has-diff" : ""}">
-        <td class="sticky-no" data-col="no">${idx + 1}</td>
+      <tr class="data-row ${rec.has_diff ? "row-has-diff" : ""} ${isSelected ? "row-selected" : ""}">
+        <td class="sticky-no" data-col="no">
+          <label class="no-check-wrap">${checkHtml}<span>${idx + 1}</span></label>
+        </td>
         ${tdCell(rec, rec.nkk, "NKK", "sticky-nkk", "nkk")}
         <td class="sticky-nik" data-col="nik">${escapeHtml(rec.nik)}</td>
         <td class="sticky-nama nama-cell ${namaDiff ? "cell-diff" : ""}" data-col="nama" title="${namaDiff ? escapeHtml("Basis Data: " + namaDiff.master) : ""}">
@@ -547,6 +618,7 @@ function renderTable() {
 
   tbody.innerHTML = rowsHtml.join("");
   applyColumnVisibility();
+  updateBulkBar();
 }
 
 /* ==================== EDIT MODAL (ADMIN ONLY) ==================== */
@@ -777,6 +849,32 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("btn-refresh").addEventListener("click", loadData);
   $("btn-export-csv").addEventListener("click", downloadCsv);
   $("btn-export-xlsx").addEventListener("click", downloadExcel);
+
+  // Event Verifikasi Massal (Khusus Admin)
+  $("select-all-rows").addEventListener("change", (e) => {
+    const checked = e.target.checked;
+    filteredRecords.forEach((r) => {
+      if (checked) selectedRows.add(r.sheet_row);
+      else selectedRows.delete(r.sheet_row);
+    });
+    renderTable();
+  });
+  $("btn-bulk-verify").addEventListener("click", () => runBulkVerify(true));
+  $("btn-bulk-unverify").addEventListener("click", () => runBulkVerify(false));
+  $("btn-bulk-clear").addEventListener("click", () => {
+    selectedRows.clear();
+    renderTable();
+  });
+  $("table-body").addEventListener("change", (e) => {
+    const cb = e.target.closest("[data-select-row]");
+    if (!cb) return;
+    const rowNum = Number(cb.getAttribute("data-select-row"));
+    if (cb.checked) selectedRows.add(rowNum);
+    else selectedRows.delete(rowNum);
+    const tr = cb.closest("tr");
+    if (tr) tr.classList.toggle("row-selected", cb.checked);
+    updateBulkBar();
+  });
 
   // Inisialisasi & event tombol Atur Kolom
   loadVisibleCols();

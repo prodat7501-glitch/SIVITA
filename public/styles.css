@@ -921,6 +921,48 @@ body {
   color: var(--red-700);
 }
 
+/* ==================== BILAH VERIFIKASI MASSAL ==================== */
+.bulk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 18px;
+  background: #ecfdf5;
+  border-bottom: 1px solid #86efac;
+  color: var(--green-950);
+  font-size: 13px;
+}
+
+.bulk-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.no-check-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.row-check {
+  accent-color: var(--green-700);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.data-table tbody tr.row-selected td {
+  background: #ecfdf5 !important;
+}
+
 .table-scroll {
   overflow: auto;
   max-height: calc(100vh - 280px);
@@ -975,15 +1017,15 @@ body {
   position: sticky;
   left: 0;
   z-index: 12;
-  width: 42px;
-  min-width: 42px;
-  max-width: 42px;
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
   text-align: center;
 }
 
 .sticky-nkk {
   position: sticky;
-  left: 42px;
+  left: 60px;
   z-index: 12;
   width: 132px;
   min-width: 132px;
@@ -992,7 +1034,7 @@ body {
 
 .sticky-nik {
   position: sticky;
-  left: 174px;
+  left: 192px;
   z-index: 12;
   width: 132px;
   min-width: 132px;
@@ -1001,7 +1043,7 @@ body {
 
 .sticky-nama {
   position: sticky;
-  left: 306px;
+  left: 324px;
   z-index: 12;
   min-width: 190px;
   max-width: 240px;
