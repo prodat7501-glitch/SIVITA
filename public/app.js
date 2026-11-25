@@ -237,20 +237,21 @@ function updateKpis() {
 
 function applyFiltersAndRender() {
   const q = ($("search-input").value || "").trim().toLowerCase();
+  const fKesimpulan = $("filter-kesimpulan").value;
   const fStatus = $("filter-status").value;
+  const fVerifikasi = $("filter-verifikasi").value;
 
   filteredRecords = allRecords.filter((r) => {
-    const ks = String(r.kesimpulan || "").toUpperCase();
+    const ks = String(r.kesimpulan || "").toUpperCase().trim();
+    if (fKesimpulan !== "ALL" && ks !== fKesimpulan) return false;
+
     if (fStatus === "GORONTALO" && r.status !== "Penduduk Kabupaten Gorontalo") return false;
     if (fStatus === "NON_GORONTALO" && r.status !== "Bukan Penduduk Kabupaten Gorontalo") return false;
-    if (fStatus === "DIFF_ONLY" && !r.has_diff) return false;
-    if (fStatus === "DIFF_UNVERIFIED" && (!r.has_diff || r.verified)) return false;
-    if (fStatus === "VERIFIED_ONLY" && !r.verified) return false;
-    if (fStatus === "KS_ANOMALI" && ks !== "ANOMALI") return false;
-    if (fStatus === "KS_GANDA" && ks !== "GANDA") return false;
-    if (fStatus === "KS_MENINGGAL" && ks !== "MENINGGAL") return false;
-    if (fStatus === "KS_NON_AKTIF" && ks !== "NON AKTIF") return false;
-    if (fStatus === "KS_TIDAK_ADA" && ks !== "TIDAK TERDAPAT DALAM DATABASE") return false;
+
+    if (fVerifikasi === "DIFF_UNVERIFIED" && (!r.has_diff || r.verified)) return false;
+    if (fVerifikasi === "DIFF_ONLY" && !r.has_diff) return false;
+    if (fVerifikasi === "UNVERIFIED" && r.verified) return false;
+    if (fVerifikasi === "VERIFIED" && !r.verified) return false;
 
     if (q) {
       const hay = [
@@ -686,7 +687,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
   $("search-input").addEventListener("input", applyFiltersAndRender);
+  $("filter-kesimpulan").addEventListener("change", applyFiltersAndRender);
   $("filter-status").addEventListener("change", applyFiltersAndRender);
+  $("filter-verifikasi").addEventListener("change", applyFiltersAndRender);
   $("btn-refresh").addEventListener("click", loadData);
   $("btn-export-csv").addEventListener("click", downloadCsv);
   $("btn-export-xlsx").addEventListener("click", downloadExcel);
@@ -801,7 +804,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             targetRec.verified = Boolean(res.verified);
             targetRec.verified_info = res.verified_info || "";
           }
-          if (nextVal && $("filter-status").value === "DIFF_UNVERIFIED") {
+          const curVerFilter = $("filter-verifikasi").value;
+          if (nextVal && (curVerFilter === "DIFF_UNVERIFIED" || curVerFilter === "UNVERIFIED")) {
             expandedRows.delete(rowNum);
             zoomLevels.delete(rowNum);
           }

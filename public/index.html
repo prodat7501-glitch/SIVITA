@@ -172,18 +172,26 @@
             class="search-input"
             placeholder="Cari NIK, NKK, Nama, Alamat, Kelurahan, atau Kecamatan..."
           />
-          <select id="filter-status" class="select-input">
-            <option value="ALL">Semua Status &amp; Kesimpulan</option>
-            <option value="DIFF_UNVERIFIED">Peringatan Merah (Belum Dicek)</option>
-            <option value="DIFF_ONLY">Peringatan Merah (Semua Berbeda dgn Basis Data)</option>
-            <option value="VERIFIED_ONLY">Sudah Diverifikasi / Diedit</option>
+          <select id="filter-kesimpulan" class="select-input" title="Filter berdasarkan Kesimpulan">
+            <option value="ALL">Semua Kesimpulan</option>
+            <option value="VALID">VALID</option>
+            <option value="ANOMALI">ANOMALI</option>
+            <option value="GANDA">GANDA</option>
+            <option value="MENINGGAL">MENINGGAL</option>
+            <option value="NON AKTIF">NON AKTIF</option>
+            <option value="TIDAK TERDAPAT DALAM DATABASE">TIDAK TERDAPAT DALAM DATABASE</option>
+          </select>
+          <select id="filter-status" class="select-input" title="Filter berdasarkan Status Domisili">
+            <option value="ALL">Semua Status</option>
             <option value="GORONTALO">Penduduk Kabupaten Gorontalo</option>
             <option value="NON_GORONTALO">Bukan Penduduk Kabupaten Gorontalo</option>
-            <option value="KS_ANOMALI">Kesimpulan: ANOMALI</option>
-            <option value="KS_GANDA">Kesimpulan: GANDA</option>
-            <option value="KS_MENINGGAL">Kesimpulan: MENINGGAL</option>
-            <option value="KS_NON_AKTIF">Kesimpulan: NON AKTIF</option>
-            <option value="KS_TIDAK_ADA">Kesimpulan: TIDAK TERDAPAT DALAM DATABASE</option>
+          </select>
+          <select id="filter-verifikasi" class="select-input" title="Filter berdasarkan Status Verifikasi">
+            <option value="ALL">Semua Verifikasi</option>
+            <option value="DIFF_UNVERIFIED">Peringatan Merah (Belum Dicek)</option>
+            <option value="DIFF_ONLY">Peringatan Merah (Semua Berbeda)</option>
+            <option value="UNVERIFIED">Belum Dicek</option>
+            <option value="VERIFIED">Sudah Dicek / Terverifikasi</option>
           </select>
         </div>
         <div class="toolbar-right">

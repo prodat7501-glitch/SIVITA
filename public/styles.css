@@ -739,7 +739,7 @@ body {
 }
 
 .search-input {
-  width: 340px;
+  width: 240px;
   max-width: 100%;
   padding: 9px 13px;
   border: 1.5px solid var(--slate-200);
