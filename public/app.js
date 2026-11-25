@@ -242,6 +242,7 @@ async function loadData() {
   try {
     const res = await apiPost({ action: "get_data" });
     allRecords = enrichKabProvDiffs(Array.isArray(res.records) ? res.records : []);
+    populateWilayahFilters();
     updateKpis();
     applyFiltersAndRender();
   } catch (err) {
@@ -262,13 +263,64 @@ function updateKpis() {
   $("kpi-diff").textContent = diff.toLocaleString("id-ID");
 }
 
+function populateKelurahanFilter() {
+  const kecSel = $("filter-kecamatan");
+  const kelSel = $("filter-kelurahan");
+  if (!kecSel || !kelSel) return;
+  const selectedKec = kecSel.value;
+  const prevKel = kelSel.value;
+
+  const kelSet = new Set();
+  allRecords.forEach((r) => {
+    const k = String(r.kecamatan || "").trim().toUpperCase();
+    const kel = String(r.kelurahan || "").trim().toUpperCase();
+    if (!kel) return;
+    if (selectedKec !== "ALL" && k !== selectedKec) return;
+    kelSet.add(kel);
+  });
+
+  const sortedKel = Array.from(kelSet).sort((a, b) => a.localeCompare(b, "id"));
+  kelSel.innerHTML =
+    `<option value="ALL">Semua Desa/Kelurahan</option>` +
+    sortedKel.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+
+  kelSel.value = kelSet.has(prevKel) ? prevKel : "ALL";
+}
+
+function populateWilayahFilters() {
+  const kecSel = $("filter-kecamatan");
+  if (!kecSel) return;
+  const prevKec = kecSel.value;
+
+  const kecSet = new Set();
+  allRecords.forEach((r) => {
+    const k = String(r.kecamatan || "").trim().toUpperCase();
+    if (k) kecSet.add(k);
+  });
+
+  const sortedKec = Array.from(kecSet).sort((a, b) => a.localeCompare(b, "id"));
+  kecSel.innerHTML =
+    `<option value="ALL">Semua Kecamatan</option>` +
+    sortedKec.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+
+  kecSel.value = kecSet.has(prevKec) ? prevKec : "ALL";
+  populateKelurahanFilter();
+}
+
 function applyFiltersAndRender() {
   const q = ($("search-input").value || "").trim().toLowerCase();
+  const fKecamatan = $("filter-kecamatan").value;
+  const fKelurahan = $("filter-kelurahan").value;
   const fKesimpulan = $("filter-kesimpulan").value;
   const fStatus = $("filter-status").value;
   const fVerifikasi = $("filter-verifikasi").value;
 
   filteredRecords = allRecords.filter((r) => {
+    const rKec = String(r.kecamatan || "").trim().toUpperCase();
+    const rKel = String(r.kelurahan || "").trim().toUpperCase();
+    if (fKecamatan !== "ALL" && rKec !== fKecamatan) return false;
+    if (fKelurahan !== "ALL" && rKel !== fKelurahan) return false;
+
     const ks = String(r.kesimpulan || "").toUpperCase().trim();
     if (fKesimpulan !== "ALL" && ks !== fKesimpulan) return false;
 
@@ -714,6 +766,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
   $("search-input").addEventListener("input", applyFiltersAndRender);
+  $("filter-kecamatan").addEventListener("change", () => {
+    populateKelurahanFilter();
+    applyFiltersAndRender();
+  });
+  $("filter-kelurahan").addEventListener("change", applyFiltersAndRender);
   $("filter-kesimpulan").addEventListener("change", applyFiltersAndRender);
   $("filter-status").addEventListener("change", applyFiltersAndRender);
   $("filter-verifikasi").addEventListener("change", applyFiltersAndRender);

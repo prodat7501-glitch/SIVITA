@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,12 +10,14 @@
   <link rel="apple-touch-icon" href="/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
   <!-- SheetJS untuk export Excel (.xlsx) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
+
 <body>
   <!-- HALAMAN LOGIN -->
   <section id="login-view" class="login-shell">
@@ -131,10 +134,12 @@
         </div>
       </div>
       <div class="topbar-right">
-        <button id="btn-open-profile" type="button" class="profile-trigger" title="Klik untuk membuka Profil &amp; Ganti Password">
+        <button id="btn-open-profile" type="button" class="profile-trigger"
+          title="Klik untuk membuka Profil &amp; Ganti Password">
           <span id="user-role-badge" class="role-badge">USER</span>
           <span id="user-name-label" class="user-name">-</span>
-          <svg class="profile-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+          <svg class="profile-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.4">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </button>
@@ -166,12 +171,14 @@
       <!-- TOOLBAR PENCARIAN, FILTER & EXPORT -->
       <section class="toolbar-card">
         <div class="toolbar-left">
-          <input
-            id="search-input"
-            type="search"
-            class="search-input"
-            placeholder="Cari NIK, NKK, Nama, Alamat, Kelurahan, atau Kecamatan..."
-          />
+          <input id="search-input" type="search" class="search-input"
+            placeholder="Cari NIK, NKK, Nama, Alamat, Kelurahan, atau Kecamatan..." />
+          <select id="filter-kecamatan" class="select-input" title="Filter berdasarkan Kecamatan">
+            <option value="ALL">Semua Kecamatan</option>
+          </select>
+          <select id="filter-kelurahan" class="select-input" title="Filter berdasarkan Desa/Kelurahan">
+            <option value="ALL">Semua Desa/Kelurahan</option>
+          </select>
           <select id="filter-kesimpulan" class="select-input" title="Filter berdasarkan Kesimpulan">
             <option value="ALL">Semua Kesimpulan</option>
             <option value="VALID">VALID</option>
@@ -409,7 +416,8 @@
         </div>
         <div class="field-group">
           <label for="profile-confirm-password">Konfirmasi Password Baru</label>
-          <input id="profile-confirm-password" type="password" placeholder="Ulangi password baru" minlength="6" required />
+          <input id="profile-confirm-password" type="password" placeholder="Ulangi password baru" minlength="6"
+            required />
         </div>
 
         <label class="show-pwd-row">
@@ -427,4 +435,5 @@
     </div>
   </div>
 </body>
+
 </html>
