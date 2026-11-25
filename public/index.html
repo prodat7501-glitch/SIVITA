@@ -148,31 +148,156 @@
     </header>
 
     <main class="main-container">
-      <!-- KPI CARDS -->
+      <!-- KPI CARDS (INTERAKTIF — KLIK UNTUK FILTER CEPAT) -->
       <section class="kpi-grid">
-        <article class="kpi-card">
-          <span class="kpi-label">Total Data Hasil DWH</span>
-          <strong id="kpi-total" class="kpi-value">0</strong>
+        <article class="kpi-card kpi-clickable" data-kpi-filter="ALL" title="Klik untuk menampilkan semua data">
+          <div class="kpi-top">
+            <div>
+              <span class="kpi-label">Total Data Hasil DWH</span>
+              <strong id="kpi-total" class="kpi-value">0</strong>
+            </div>
+            <div class="kpi-icon kpi-icon-slate" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="kpi-sub" id="kpi-total-sub">0 data terverifikasi</div>
+          <div class="kpi-bar"><span id="kpi-total-bar" style="width: 0%"></span></div>
         </article>
-        <article class="kpi-card kpi-green">
-          <span class="kpi-label">Penduduk Kab. Gorontalo</span>
-          <strong id="kpi-gorontalo" class="kpi-value">0</strong>
+
+        <article class="kpi-card kpi-green kpi-clickable" data-kpi-filter="GORONTALO" title="Klik untuk memfilter Penduduk Kab. Gorontalo">
+          <div class="kpi-top">
+            <div>
+              <span class="kpi-label">Penduduk Kab. Gorontalo</span>
+              <strong id="kpi-gorontalo" class="kpi-value">0</strong>
+            </div>
+            <div class="kpi-icon kpi-icon-green" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+          </div>
+          <div class="kpi-sub" id="kpi-gorontalo-sub">0% dari total data</div>
+          <div class="kpi-bar"><span id="kpi-gorontalo-bar" style="width: 0%"></span></div>
         </article>
-        <article class="kpi-card kpi-amber">
-          <span class="kpi-label">Bukan Penduduk Kab. Gorontalo</span>
-          <strong id="kpi-luar" class="kpi-value">0</strong>
+
+        <article class="kpi-card kpi-amber kpi-clickable" data-kpi-filter="NON_GORONTALO" title="Klik untuk memfilter Bukan Penduduk Kab. Gorontalo">
+          <div class="kpi-top">
+            <div>
+              <span class="kpi-label">Bukan Penduduk Kab. Gorontalo</span>
+              <strong id="kpi-luar" class="kpi-value">0</strong>
+            </div>
+            <div class="kpi-icon kpi-icon-amber" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="kpi-sub" id="kpi-luar-sub">0% dari total data</div>
+          <div class="kpi-bar"><span id="kpi-luar-bar" style="width: 0%"></span></div>
         </article>
-        <article class="kpi-card kpi-red">
-          <span class="kpi-label">Peringatan Berbeda dgn Basis Data</span>
-          <strong id="kpi-diff" class="kpi-value">0</strong>
+
+        <article class="kpi-card kpi-red kpi-clickable" data-kpi-filter="DIFF_UNVERIFIED" title="Klik untuk melihat data merah yang belum dicek">
+          <div class="kpi-top">
+            <div>
+              <span class="kpi-label">Peringatan Berbeda dgn Basis Data</span>
+              <strong id="kpi-diff" class="kpi-value">0</strong>
+            </div>
+            <div class="kpi-icon kpi-icon-red" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="kpi-sub" id="kpi-diff-sub">0 belum dicek</div>
+          <div class="kpi-bar"><span id="kpi-diff-bar" style="width: 0%"></span></div>
         </article>
       </section>
 
-      <!-- TOOLBAR PENCARIAN, FILTER & EXPORT -->
+      <!-- TOOLBAR PENCARIAN, FILTER & EXPORT (2 ZONA RAPI) -->
       <section class="toolbar-card">
-        <div class="toolbar-left">
-          <input id="search-input" type="search" class="search-input"
-            placeholder="Cari NIK, NKK, Nama, Alamat, Kelurahan, atau Kecamatan..." />
+        <div class="toolbar-top">
+          <div class="search-box-wrap">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input id="search-input" type="search" class="search-input"
+              placeholder="Cari NIK, NKK, Nama, Alamat, Kelurahan, atau Kecamatan..." />
+          </div>
+          <div class="toolbar-right">
+            <div class="col-picker-wrap">
+              <button id="btn-col-picker" type="button" class="btn btn-outline">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Atur Kolom ▾</span>
+              </button>
+              <div id="col-picker-menu" class="col-picker-menu hidden">
+                <div class="col-picker-header">
+                  <span>Pilih Kolom Tabel</span>
+                  <div class="col-picker-actions">
+                    <button id="btn-cols-all" type="button" class="link-btn">Semua</button>
+                    <span class="col-picker-sep">|</span>
+                    <button id="btn-cols-none" type="button" class="link-btn link-btn-danger">Hapus Semua</button>
+                  </div>
+                </div>
+                <div id="col-picker-list" class="col-picker-list"></div>
+              </div>
+            </div>
+            <button id="btn-refresh" type="button" class="btn btn-outline">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>Muat Ulang</span>
+            </button>
+            <button id="btn-sync-sheet1" type="button" class="btn btn-outline admin-only hidden">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="17 1 21 5 17 9"></polyline>
+                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                <polyline points="7 23 3 19 7 15"></polyline>
+                <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+              </svg>
+              <span>Sinkronisasi</span>
+            </button>
+            <button id="btn-export-csv" type="button" class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>CSV</span>
+            </button>
+            <button id="btn-export-xlsx" type="button" class="btn btn-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download Excel</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="toolbar-filters">
+          <span class="filter-strip-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            Filter:
+          </span>
           <select id="filter-kecamatan" class="select-input" title="Filter berdasarkan Kecamatan">
             <option value="ALL">Semua Kecamatan</option>
           </select>
@@ -200,31 +325,9 @@
             <option value="UNVERIFIED">Belum Dicek</option>
             <option value="VERIFIED">Sudah Dicek / Terverifikasi</option>
           </select>
-          <button id="btn-reset-filters" type="button" class="btn btn-outline" title="Kembalikan seluruh pencarian dan filter ke awal">
-            Reset Filter
+          <button id="btn-reset-filters" type="button" class="btn btn-reset-filter" title="Kembalikan seluruh pencarian dan filter ke awal">
+            ✕ Reset Filter
           </button>
-        </div>
-        <div class="toolbar-right">
-          <div class="col-picker-wrap">
-            <button id="btn-col-picker" type="button" class="btn btn-outline">Atur Kolom ▾</button>
-            <div id="col-picker-menu" class="col-picker-menu hidden">
-              <div class="col-picker-header">
-                <span>Pilih Kolom Tabel</span>
-                <div class="col-picker-actions">
-                  <button id="btn-cols-all" type="button" class="link-btn">Semua</button>
-                  <span class="col-picker-sep">|</span>
-                  <button id="btn-cols-none" type="button" class="link-btn link-btn-danger">Hapus Semua</button>
-                </div>
-              </div>
-              <div id="col-picker-list" class="col-picker-list"></div>
-            </div>
-          </div>
-          <button id="btn-refresh" type="button" class="btn btn-outline">Muat Ulang</button>
-          <button id="btn-sync-sheet1" type="button" class="btn btn-outline admin-only hidden">
-            Sinkronisasi
-          </button>
-          <button id="btn-export-csv" type="button" class="btn btn-secondary">Download CSV</button>
-          <button id="btn-export-xlsx" type="button" class="btn btn-primary">Download Excel</button>
         </div>
       </section>
 

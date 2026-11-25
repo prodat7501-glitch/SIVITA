@@ -258,12 +258,32 @@ function updateKpis() {
   const total = allRecords.length;
   const gorontalo = allRecords.filter((r) => r.status === "Penduduk Kabupaten Gorontalo").length;
   const luar = allRecords.filter((r) => r.status === "Bukan Penduduk Kabupaten Gorontalo").length;
-  const diff = allRecords.filter((r) => r.has_diff).length;
+  const diffAll = allRecords.filter((r) => r.has_diff);
+  const diff = diffAll.length;
+  const diffUnverified = diffAll.filter((r) => !r.verified).length;
+  const diffVerified = diff - diffUnverified;
+  const verifiedTotal = allRecords.filter((r) => r.verified).length;
+
+  const pct = (n) => (total > 0 ? Math.round((n / total) * 1000) / 10 : 0);
 
   $("kpi-total").textContent = total.toLocaleString("id-ID");
   $("kpi-gorontalo").textContent = gorontalo.toLocaleString("id-ID");
   $("kpi-luar").textContent = luar.toLocaleString("id-ID");
   $("kpi-diff").textContent = diff.toLocaleString("id-ID");
+
+  $("kpi-total-sub").textContent = `${verifiedTotal.toLocaleString("id-ID")} dari ${total.toLocaleString("id-ID")} data terverifikasi`;
+  $("kpi-total-bar").style.width = `${pct(verifiedTotal)}%`;
+
+  const pGor = pct(gorontalo);
+  $("kpi-gorontalo-sub").textContent = `${pGor.toLocaleString("id-ID")}% dari total data`;
+  $("kpi-gorontalo-bar").style.width = `${pGor}%`;
+
+  const pLuar = pct(luar);
+  $("kpi-luar-sub").textContent = `${pLuar.toLocaleString("id-ID")}% dari total data`;
+  $("kpi-luar-bar").style.width = `${pLuar}%`;
+
+  $("kpi-diff-sub").textContent = `${diffUnverified.toLocaleString("id-ID")} belum dicek • ${diffVerified.toLocaleString("id-ID")} sudah dicek`;
+  $("kpi-diff-bar").style.width = `${pct(diff)}%`;
 }
 
 function populateKelurahanFilter() {
@@ -310,7 +330,15 @@ function populateWilayahFilters() {
   populateKelurahanFilter();
 }
 
+function syncActiveFilterStyles() {
+  ["filter-kecamatan", "filter-kelurahan", "filter-kesimpulan", "filter-status", "filter-verifikasi"].forEach((id) => {
+    const el = $(id);
+    if (el) el.classList.toggle("filter-active", el.value !== "ALL");
+  });
+}
+
 function applyFiltersAndRender() {
+  syncActiveFilterStyles();
   const q = ($("search-input").value || "").trim().toLowerCase();
   const fKecamatan = $("filter-kecamatan").value;
   const fKelurahan = $("filter-kelurahan").value;
@@ -526,6 +554,7 @@ async function runBulkVerify(verifiedFlag) {
       }
     });
     selectedRows.clear();
+    updateKpis();
     applyFiltersAndRender();
     showBanner(
       verifiedFlag
@@ -565,19 +594,31 @@ function renderTable() {
       : "";
 
     const editBtn = isAdmin
-      ? `<button type="button" class="btn btn-xs btn-edit" data-edit-row="${rec.sheet_row}">Edit</button>`
+      ? `<button type="button" class="btn btn-xs btn-edit" data-edit-row="${rec.sheet_row}" title="Edit data ini"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg><span>Edit</span></button>`
       : "";
     const checkHtml = isAdmin
       ? `<input type="checkbox" class="row-check" data-select-row="${rec.sheet_row}" ${isSelected ? "checked" : ""} aria-label="Pilih baris ${idx + 1}" />`
       : "";
+    const kelVal = String(rec.kelamin || "-").toUpperCase();
+    const kelDiff = getDiffObj(rec, "KELAMIN");
+    const kelTagCls = kelVal === "L" ? "mini-tag mini-tag-l" : kelVal === "P" ? "mini-tag mini-tag-p" : "mini-tag";
+    const kelCellHtml = kelDiff
+      ? tdCell(rec, rec.kelamin, "KELAMIN", "", "kelamin")
+      : `<td data-col="kelamin"><span class="${kelTagCls}">${escapeHtml(kelVal)}</span></td>`;
+
+    const kawinVal = String(rec.sts_kawin || "-").toUpperCase();
+    const kawinDiff = getDiffObj(rec, "STS_KAWIN");
+    const kawinCellHtml = kawinDiff
+      ? tdCell(rec, rec.sts_kawin, "STS_KAWIN", "", "sts_kawin")
+      : `<td data-col="sts_kawin"><span class="mini-tag">${escapeHtml(kawinVal)}</span></td>`;
 
     rowsHtml.push(`
       <tr class="data-row ${rec.has_diff ? "row-has-diff" : ""} ${isSelected ? "row-selected" : ""}">
-        <td class="sticky-no" data-col="no">
+        <td class="sticky-no num-cell" data-col="no">
           <label class="no-check-wrap">${checkHtml}<span>${idx + 1}</span></label>
         </td>
-        ${tdCell(rec, rec.nkk, "NKK", "sticky-nkk", "nkk")}
-        <td class="sticky-nik" data-col="nik">${escapeHtml(rec.nik)}</td>
+        ${tdCell(rec, rec.nkk, "NKK", "sticky-nkk num-cell", "nkk")}
+        <td class="sticky-nik num-cell" data-col="nik">${escapeHtml(rec.nik)}</td>
         <td class="sticky-nama nama-cell ${namaDiff ? "cell-diff" : ""}" data-col="nama" title="${namaDiff ? escapeHtml("Basis Data: " + namaDiff.master) : ""}">
           <div class="nama-text">
             <span>${escapeHtml(rec.nama || "-")}</span>
@@ -586,23 +627,24 @@ function renderTable() {
           </div>
         </td>
         ${tdCell(rec, rec.tempat_lahir, "TEMPAT_LAHIR", "", "tempat_lahir")}
-        ${tdCell(rec, rec.tanggal_lahir, "TANGGAL_LAHIR", "", "tanggal_lahir")}
-        ${tdCell(rec, rec.kelamin, "KELAMIN", "", "kelamin")}
-        ${tdCell(rec, rec.sts_kawin, "STS_KAWIN", "", "sts_kawin")}
+        ${tdCell(rec, rec.tanggal_lahir, "TANGGAL_LAHIR", "num-cell", "tanggal_lahir")}
+        ${kelCellHtml}
+        ${kawinCellHtml}
         ${tdCell(rec, rec.alamat, "ALAMAT", "", "alamat")}
-        <td data-col="rt">${escapeHtml(formatRtRw3Digit(rec.rt, rec.kesimpulan))}</td>
-        <td data-col="rw">${escapeHtml(formatRtRw3Digit(rec.rw, rec.kesimpulan))}</td>
+        <td class="num-cell" data-col="rt">${escapeHtml(formatRtRw3Digit(rec.rt, rec.kesimpulan))}</td>
+        <td class="num-cell" data-col="rw">${escapeHtml(formatRtRw3Digit(rec.rw, rec.kesimpulan))}</td>
         ${tdCell(rec, rec.kelurahan, "KELURAHAN", "", "kelurahan")}
         ${tdCell(rec, rec.kecamatan, "KECAMATAN", "", "kecamatan")}
         ${tdCell(rec, rec.kab_kota, "KABUPATEN/KOTA", "", "kab_kota")}
         ${tdCell(rec, rec.provinsi, "PROVINSI", "", "provinsi")}
-        <td data-col="updated_at">${escapeHtml(rec.updated_at || "-")}</td>
+        <td class="num-cell" data-col="updated_at">${escapeHtml(rec.updated_at || "-")}</td>
         <td data-col="kategori_data">${escapeHtml(rec.kategori_data || "-")}</td>
         <td class="aksi-cell" data-col="aksi">
           <div class="row-actions">
             ${editBtn}
-            <button type="button" class="btn btn-xs btn-ss" data-toggle-ss="${rec.sheet_row}">
-              ${isOpen ? "Tutup DWH" : "Lihat DWH"}
+            <button type="button" class="btn btn-xs btn-ss ${isOpen ? "btn-ss-open" : ""}" data-toggle-ss="${rec.sheet_row}">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <span>${isOpen ? "Tutup DWH" : "Lihat DWH"}</span>
             </button>
           </div>
         </td>
@@ -856,6 +898,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     $("filter-verifikasi").value = "ALL";
     applyFiltersAndRender();
   });
+
+  // Klik Kartu KPI untuk filter cepat
+  document.querySelectorAll("[data-kpi-filter]").forEach((card) => {
+    card.addEventListener("click", () => {
+      const mode = card.getAttribute("data-kpi-filter");
+      $("search-input").value = "";
+      $("filter-kecamatan").value = "ALL";
+      populateKelurahanFilter();
+      $("filter-kelurahan").value = "ALL";
+      $("filter-kesimpulan").value = "ALL";
+      $("filter-status").value = mode === "GORONTALO" || mode === "NON_GORONTALO" ? mode : "ALL";
+      $("filter-verifikasi").value = mode === "DIFF_UNVERIFIED" ? "DIFF_UNVERIFIED" : "ALL";
+      applyFiltersAndRender();
+    });
+  });
   $("btn-refresh").addEventListener("click", loadData);
   $("btn-export-csv").addEventListener("click", downloadCsv);
   $("btn-export-xlsx").addEventListener("click", downloadExcel);
@@ -1001,6 +1058,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             expandedRows.delete(rowNum);
             zoomLevels.delete(rowNum);
           }
+          updateKpis();
           applyFiltersAndRender();
           showBanner(
             nextVal
