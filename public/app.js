@@ -112,8 +112,16 @@ const zoomLevels = new Map(); // sheet_row -> zoom percent (default 100)
 
 const $ = (id) => document.getElementById(id);
 
-function formatRtRw3Digit(val) {
+function shouldNormalizeRtRw(kesimpulan) {
+  const k = String(kesimpulan || "").toUpperCase().trim();
+  return k === "VALID" || k === "ANOMALI";
+}
+
+function formatRtRw3Digit(val, kesimpulan) {
   const s = String(val ?? "").trim();
+  if (!shouldNormalizeRtRw(kesimpulan)) {
+    return !s || s === "-" || s === "000" ? "-" : s;
+  }
   if (!s || s === "-") return "000";
   const digits = s.replace(/\D/g, "");
   if (!digits) return "000";
@@ -417,8 +425,8 @@ function renderTable() {
         ${tdCell(rec, rec.kelamin, "KELAMIN", "", "kelamin")}
         ${tdCell(rec, rec.sts_kawin, "STS_KAWIN", "", "sts_kawin")}
         ${tdCell(rec, rec.alamat, "ALAMAT", "", "alamat")}
-        <td data-col="rt">${escapeHtml(formatRtRw3Digit(rec.rt))}</td>
-        <td data-col="rw">${escapeHtml(formatRtRw3Digit(rec.rw))}</td>
+        <td data-col="rt">${escapeHtml(formatRtRw3Digit(rec.rt, rec.kesimpulan))}</td>
+        <td data-col="rw">${escapeHtml(formatRtRw3Digit(rec.rw, rec.kesimpulan))}</td>
         ${tdCell(rec, rec.kelurahan, "KELURAHAN", "", "kelurahan")}
         ${tdCell(rec, rec.kecamatan, "KECAMATAN", "", "kecamatan")}
         <td data-col="kab_kota">${escapeHtml(rec.kab_kota || "-")}</td>
@@ -462,8 +470,8 @@ function openEditModal(sheetRow) {
   $("edit-kelamin").value = rec.kelamin || "-";
   $("edit-sts-kawin").value = rec.sts_kawin || "-";
   $("edit-alamat").value = rec.alamat || "";
-  $("edit-rt").value = formatRtRw3Digit(rec.rt);
-  $("edit-rw").value = formatRtRw3Digit(rec.rw);
+  $("edit-rt").value = formatRtRw3Digit(rec.rt, rec.kesimpulan);
+  $("edit-rw").value = formatRtRw3Digit(rec.rw, rec.kesimpulan);
   $("edit-kelurahan").value = rec.kelurahan || "";
   $("edit-kecamatan").value = rec.kecamatan || "";
   $("edit-kab-kota").value = rec.kab_kota || "";
@@ -493,8 +501,8 @@ function getExportRows() {
     STS_KAWIN: r.sts_kawin || "",
     KELAMIN: r.kelamin || "",
     ALAMAT: r.alamat || "",
-    RT: formatRtRw3Digit(r.rt),
-    RW: formatRtRw3Digit(r.rw),
+    RT: formatRtRw3Digit(r.rt, r.kesimpulan),
+    RW: formatRtRw3Digit(r.rw, r.kesimpulan),
     UPDATED_AT: r.updated_at || "",
     KATEGORI_DATA: r.kategori_data || "",
     STATUS: r.status || "",
@@ -737,6 +745,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     saveBtn.textContent = "Menyimpan...";
     try {
       const sheetRow = Number($("edit-sheet-row").value);
+      const ksEdit = $("edit-kesimpulan").value;
       const record = {
         nik: $("edit-nik").value.trim(),
         nkk: $("edit-nkk").value.trim(),
@@ -746,13 +755,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         kelamin: $("edit-kelamin").value,
         sts_kawin: $("edit-sts-kawin").value,
         alamat: $("edit-alamat").value.trim(),
-        rt: formatRtRw3Digit($("edit-rt").value),
-        rw: formatRtRw3Digit($("edit-rw").value),
+        rt: formatRtRw3Digit($("edit-rt").value, ksEdit),
+        rw: formatRtRw3Digit($("edit-rw").value, ksEdit),
         kelurahan: $("edit-kelurahan").value.trim(),
         kecamatan: $("edit-kecamatan").value.trim(),
         kab_kota: $("edit-kab-kota").value.trim(),
         provinsi: $("edit-provinsi").value.trim(),
-        kesimpulan: $("edit-kesimpulan").value,
+        kesimpulan: ksEdit,
       };
       await apiPost({ action: "update_record", sheet_row: sheetRow, record });
       closeEditModal();
