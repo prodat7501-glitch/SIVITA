@@ -605,9 +605,10 @@ body {
 
 /* ==================== MAIN LAYOUT ==================== */
 .main-container {
-  max-width: 1620px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 20px 24px 40px;
+  padding: 14px 16px 24px;
 }
 
 .kpi-grid {
@@ -767,61 +768,105 @@ body {
 }
 
 .table-scroll {
-  overflow-x: auto;
+  overflow: auto;
+  max-height: calc(100vh - 280px);
+  min-height: 360px;
+  position: relative;
 }
 
 .data-table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 12.5px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
 }
 
 .data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   background: var(--green-900);
   color: var(--white);
   text-align: left;
-  padding: 11px 12px;
-  font-size: 11.5px;
+  padding: 10px 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.3px;
   white-space: nowrap;
+  border-bottom: 2px solid var(--green-950);
 }
 
 .data-table tbody td {
-  padding: 10px 12px;
+  padding: 7px 10px;
   border-bottom: 1px solid var(--slate-100);
-  vertical-align: top;
+  vertical-align: middle;
   white-space: nowrap;
+  background: var(--white);
 }
 
-.data-table tbody tr.data-row:hover {
-  background: #f8fbf9;
+.data-table tbody tr.data-row:hover td {
+  background: #f3faf6;
 }
 
-.data-table tbody tr.row-has-diff {
+.data-table tbody tr.row-has-diff td {
   background: #fffafa;
 }
 
+.data-table tbody tr.row-has-diff:hover td {
+  background: #fef2f2;
+}
+
+/* Freeze Kolom No & NAMA saat geser ke kanan */
+.sticky-no {
+  position: sticky;
+  left: 0;
+  z-index: 12;
+  width: 44px;
+  min-width: 44px;
+  text-align: center;
+}
+
+.sticky-nama {
+  position: sticky;
+  left: 44px;
+  z-index: 12;
+  min-width: 195px;
+  max-width: 240px;
+  box-shadow: 3px 0 8px -2px rgba(6, 40, 30, 0.12);
+  border-right: 1px solid var(--slate-200);
+}
+
+.data-table thead th.sticky-no,
+.data-table thead th.sticky-nama {
+  z-index: 30;
+  background: var(--green-900);
+}
+
 .nama-cell {
-  min-width: 245px;
-  white-space: normal !important;
+  white-space: nowrap !important;
 }
 
 .nama-text {
   font-weight: 700;
   color: var(--slate-900);
-  font-size: 13px;
-  display: flex;
+  font-size: 12px;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+}
+
+.col-aksi {
+  text-align: center !important;
+}
+
+.aksi-cell {
+  white-space: nowrap !important;
 }
 
 .row-actions {
-  display: flex;
-  gap: 6px;
-  margin-top: 7px;
-  flex-wrap: wrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .diff-pill {

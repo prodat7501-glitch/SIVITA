@@ -182,7 +182,7 @@
         <div class="toolbar-right">
           <button id="btn-refresh" type="button" class="btn btn-outline">Muat Ulang</button>
           <button id="btn-sync-sheet1" type="button" class="btn btn-outline admin-only hidden">
-            Sinkron Sheet 1 → Hasil_DWH
+            Sinkronisasi
           </button>
           <button id="btn-export-csv" type="button" class="btn btn-secondary">Download CSV</button>
           <button id="btn-export-xlsx" type="button" class="btn btn-primary">Download Excel</button>
@@ -208,8 +208,8 @@
           <table id="dwh-table" class="data-table">
             <thead>
               <tr>
-                <th>No</th>
-                <th>NAMA &amp; AKSI</th>
+                <th class="sticky-no">No</th>
+                <th class="sticky-nama">NAMA</th>
                 <th>KESIMPULAN</th>
                 <th>STATUS</th>
                 <th>NIK</th>
@@ -226,11 +226,12 @@
                 <th>KABUPATEN/KOTA</th>
                 <th>PROVINSI</th>
                 <th>UPDATED_AT</th>
+                <th class="col-aksi">AKSI</th>
               </tr>
             </thead>
             <tbody id="table-body">
               <tr>
-                <td colspan="18" class="empty-cell">Memuat data dari Google Spreadsheet...</td>
+                <td colspan="19" class="empty-cell">Memuat data dari Google Spreadsheet...</td>
               </tr>
             </tbody>
           </table>

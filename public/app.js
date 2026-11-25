@@ -97,14 +97,14 @@ function logout(silent = false) {
 /* ==================== DATA LOADING & FILTERING ==================== */
 async function loadData() {
   const tbody = $("table-body");
-  tbody.innerHTML = `<tr><td colspan="18" class="empty-cell">Memuat data Hasil Pengecekan DWH dari Google Sheets...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="19" class="empty-cell">Memuat data Hasil Pengecekan DWH dari Google Sheets...</td></tr>`;
   try {
     const res = await apiPost({ action: "get_data" });
     allRecords = Array.isArray(res.records) ? res.records : [];
     updateKpis();
     applyFiltersAndRender();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="18" class="empty-cell">Gagal memuat data: ${escapeHtml(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="19" class="empty-cell">Gagal memuat data: ${escapeHtml(err.message)}</td></tr>`;
     showBanner(`Gagal memuat data: ${err.message}`, true);
   }
 }
@@ -259,7 +259,7 @@ function renderInlineScreenshotPanel(rec) {
 
   return `
     <tr class="inline-panel-row">
-      <td colspan="18">
+      <td colspan="19">
         <div class="inline-panel">
           ${ssHtml}
           ${diffHtml}
@@ -272,7 +272,7 @@ function renderInlineScreenshotPanel(rec) {
 function renderTable() {
   const tbody = $("table-body");
   if (!filteredRecords.length) {
-    tbody.innerHTML = `<tr><td colspan="18" class="empty-cell">Tidak ada data yang cocok dengan filter pencarian.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="19" class="empty-cell">Tidak ada data yang cocok dengan filter pencarian.</td></tr>`;
     return;
   }
 
@@ -283,7 +283,7 @@ function renderTable() {
     const isOpen = expandedRows.has(rec.sheet_row);
     const namaDiff = getDiffObj(rec, "NAMA");
     const diffBadge = rec.has_diff
-      ? `<span class="diff-pill" title="Terdapat ${rec.diffs.length} elemen berbeda dengan Sheet 1">! ${rec.diffs.length} Berbeda</span>`
+      ? `<span class="diff-pill" title="Terdapat ${rec.diffs.length} elemen berbeda dengan Sheet 1">! ${rec.diffs.length}</span>`
       : "";
 
     const editBtn = isAdmin
@@ -292,17 +292,11 @@ function renderTable() {
 
     rowsHtml.push(`
       <tr class="data-row ${rec.has_diff ? "row-has-diff" : ""}">
-        <td>${idx + 1}</td>
-        <td class="nama-cell ${namaDiff ? "cell-diff" : ""}" title="${namaDiff ? escapeHtml("Sheet 1: " + namaDiff.master) : ""}">
+        <td class="sticky-no">${idx + 1}</td>
+        <td class="sticky-nama nama-cell ${namaDiff ? "cell-diff" : ""}" title="${namaDiff ? escapeHtml("Sheet 1: " + namaDiff.master) : ""}">
           <div class="nama-text">
             <span>${escapeHtml(rec.nama || "-")}</span>
             ${diffBadge}
-          </div>
-          <div class="row-actions">
-            <button type="button" class="btn btn-xs btn-ss" data-toggle-ss="${rec.sheet_row}">
-              ${isOpen ? "Sembunyikan Screenshot DWH" : "Lihat Screenshot DWH"}
-            </button>
-            ${editBtn}
           </div>
         </td>
         <td>${renderKesimpulanPill(rec.kesimpulan)}</td>
@@ -321,6 +315,14 @@ function renderTable() {
         <td>${escapeHtml(rec.kab_kota || "-")}</td>
         <td>${escapeHtml(rec.provinsi || "-")}</td>
         <td>${escapeHtml(rec.updated_at || "-")}</td>
+        <td class="aksi-cell">
+          <div class="row-actions">
+            ${editBtn}
+            <button type="button" class="btn btn-xs btn-ss" data-toggle-ss="${rec.sheet_row}">
+              ${isOpen ? "Tutup DWH" : "Lihat DWH"}
+            </button>
+          </div>
+        </td>
       </tr>
     `);
 
@@ -481,7 +483,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       showBanner(`Gagal sinkronisasi: ${err.message}`, true);
     } finally {
       btn.disabled = false;
-      btn.textContent = "Sinkron Sheet 1 → Hasil_DWH";
+      btn.textContent = "Sinkronisasi";
     }
   });
 
