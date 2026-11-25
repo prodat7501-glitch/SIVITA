@@ -180,6 +180,16 @@
           </select>
         </div>
         <div class="toolbar-right">
+          <div class="col-picker-wrap">
+            <button id="btn-col-picker" type="button" class="btn btn-outline">Atur Kolom ▾</button>
+            <div id="col-picker-menu" class="col-picker-menu hidden">
+              <div class="col-picker-header">
+                <span>Pilih Kolom Tabel</span>
+                <button id="btn-cols-all" type="button" class="link-btn">Tampilkan Semua</button>
+              </div>
+              <div id="col-picker-list" class="col-picker-list"></div>
+            </div>
+          </div>
           <button id="btn-refresh" type="button" class="btn btn-outline">Muat Ulang</button>
           <button id="btn-sync-sheet1" type="button" class="btn btn-outline admin-only hidden">
             Sinkronisasi
@@ -208,26 +218,26 @@
           <table id="dwh-table" class="data-table">
             <thead>
               <tr>
-                <th class="sticky-no">No</th>
-                <th class="sticky-nkk">NKK</th>
-                <th class="sticky-nik">NIK</th>
-                <th class="sticky-nama">NAMA</th>
-                <th>TEMPAT_LAHIR</th>
-                <th>TANGGAL_LAHIR</th>
-                <th>KELAMIN</th>
-                <th>STS_KAWIN</th>
-                <th>ALAMAT</th>
-                <th>RT</th>
-                <th>RW</th>
-                <th>KELURAHAN</th>
-                <th>KECAMATAN</th>
-                <th>KABUPATEN/KOTA</th>
-                <th>PROVINSI</th>
-                <th>UPDATED_AT</th>
-                <th>KATEGORI DATA</th>
-                <th class="col-aksi">AKSI</th>
-                <th>KESIMPULAN</th>
-                <th>STATUS</th>
+                <th class="sticky-no" data-col="no">No</th>
+                <th class="sticky-nkk" data-col="nkk">NKK</th>
+                <th class="sticky-nik" data-col="nik">NIK</th>
+                <th class="sticky-nama" data-col="nama">NAMA</th>
+                <th data-col="tempat_lahir">TEMPAT_LAHIR</th>
+                <th data-col="tanggal_lahir">TANGGAL_LAHIR</th>
+                <th data-col="kelamin">KELAMIN</th>
+                <th data-col="sts_kawin">STS_KAWIN</th>
+                <th data-col="alamat">ALAMAT</th>
+                <th data-col="rt">RT</th>
+                <th data-col="rw">RW</th>
+                <th data-col="kelurahan">KELURAHAN</th>
+                <th data-col="kecamatan">KECAMATAN</th>
+                <th data-col="kab_kota">KABUPATEN/KOTA</th>
+                <th data-col="provinsi">PROVINSI</th>
+                <th data-col="updated_at">UPDATED_AT</th>
+                <th data-col="kategori_data">KATEGORI DATA</th>
+                <th class="col-aksi" data-col="aksi">AKSI</th>
+                <th data-col="kesimpulan">KESIMPULAN</th>
+                <th data-col="status">STATUS</th>
               </tr>
             </thead>
             <tbody id="table-body">

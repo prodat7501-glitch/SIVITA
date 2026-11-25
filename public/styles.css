@@ -708,6 +708,86 @@ body {
   outline: none;
 }
 
+/* ==================== COLUMN PICKER DROPDOWN ==================== */
+.col-picker-wrap {
+  position: relative;
+}
+
+.col-picker-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 265px;
+  background: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  box-shadow: 0 14px 36px rgba(6, 40, 30, 0.18);
+  z-index: 60;
+  padding: 10px 12px;
+}
+
+.col-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--slate-100);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green-900);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--green-700);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+.col-picker-list {
+  max-height: 310px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.col-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--slate-700);
+  cursor: pointer;
+  user-select: none;
+}
+
+.col-picker-item:hover {
+  background: var(--green-50);
+}
+
+.col-picker-item input[type="checkbox"] {
+  accent-color: var(--green-900);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.col-hidden {
+  display: none !important;
+}
+
 .status-banner {
   padding: 10px 14px;
   border-radius: var(--radius-sm);

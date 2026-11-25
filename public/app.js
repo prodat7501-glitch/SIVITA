@@ -6,6 +6,105 @@
 const API_URL = "/api/sivita";
 const STORAGE_TOKEN_KEY = "sivita_session_token";
 const STORAGE_USER_KEY = "sivita_session_user";
+const STORAGE_COLS_KEY = "sivita_visible_cols";
+
+const TABLE_COLUMNS = [
+  { key: "nkk", label: "NKK" },
+  { key: "nik", label: "NIK" },
+  { key: "nama", label: "NAMA" },
+  { key: "tempat_lahir", label: "TEMPAT_LAHIR" },
+  { key: "tanggal_lahir", label: "TANGGAL_LAHIR" },
+  { key: "kelamin", label: "KELAMIN" },
+  { key: "sts_kawin", label: "STS_KAWIN" },
+  { key: "alamat", label: "ALAMAT" },
+  { key: "rt", label: "RT" },
+  { key: "rw", label: "RW" },
+  { key: "kelurahan", label: "KELURAHAN" },
+  { key: "kecamatan", label: "KECAMATAN" },
+  { key: "kab_kota", label: "KABUPATEN/KOTA" },
+  { key: "provinsi", label: "PROVINSI" },
+  { key: "updated_at", label: "UPDATED_AT" },
+  { key: "kategori_data", label: "KATEGORI DATA" },
+  { key: "aksi", label: "AKSI" },
+  { key: "kesimpulan", label: "KESIMPULAN" },
+  { key: "status", label: "STATUS" },
+];
+
+let visibleCols = new Set(TABLE_COLUMNS.map((c) => c.key));
+
+function loadVisibleCols() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_COLS_KEY) || "null");
+    if (Array.isArray(saved) && saved.length > 0) {
+      const validKeys = new Set(TABLE_COLUMNS.map((c) => c.key));
+      const filtered = saved.filter((k) => validKeys.has(k));
+      if (filtered.length > 0) {
+        visibleCols = new Set(filtered);
+        return;
+      }
+    }
+  } catch {}
+  visibleCols = new Set(TABLE_COLUMNS.map((c) => c.key));
+}
+
+function saveVisibleCols() {
+  try {
+    localStorage.setItem(STORAGE_COLS_KEY, JSON.stringify(Array.from(visibleCols)));
+  } catch {}
+}
+
+function getVisibleColCount() {
+  return 1 + visibleCols.size; // 1 untuk kolom No
+}
+
+function applyColumnVisibility() {
+  const table = $("dwh-table");
+  if (!table) return;
+  TABLE_COLUMNS.forEach((c) => {
+    const hidden = !visibleCols.has(c.key);
+    table.querySelectorAll(`[data-col="${c.key}"]`).forEach((el) => {
+      el.classList.toggle("col-hidden", hidden);
+    });
+  });
+
+  // Hitung ulang posisi left sticky (No -> NKK -> NIK -> NAMA) jika NKK/NIK disembunyikan
+  let leftPx = 42; // Lebar kolom No
+  const nkkVisible = visibleCols.has("nkk");
+  const nikVisible = visibleCols.has("nik");
+
+  table.querySelectorAll(".sticky-nkk").forEach((el) => {
+    el.style.left = `${leftPx}px`;
+  });
+  if (nkkVisible) leftPx += 132;
+
+  table.querySelectorAll(".sticky-nik").forEach((el) => {
+    el.style.left = `${leftPx}px`;
+  });
+  if (nikVisible) leftPx += 132;
+
+  table.querySelectorAll(".sticky-nama").forEach((el) => {
+    el.style.left = `${leftPx}px`;
+  });
+
+  // Perbarui colspan pada panel inline screenshot / empty cell
+  const span = getVisibleColCount();
+  table.querySelectorAll(".inline-panel-row td, .empty-cell").forEach((td) => {
+    td.setAttribute("colspan", String(span));
+  });
+}
+
+function renderColumnPicker() {
+  const list = $("col-picker-list");
+  if (!list) return;
+  list.innerHTML = TABLE_COLUMNS.map(
+    (c) => `
+      <label class="col-picker-item">
+        <input type="checkbox" data-col-toggle="${c.key}" ${visibleCols.has(c.key) ? "checked" : ""} />
+        <span>${escapeHtml(c.label)}</span>
+      </label>
+    `
+  ).join("");
+}
 
 let currentUser = null;
 let allRecords = [];
@@ -167,14 +266,15 @@ function getDiffObj(rec, fieldName) {
   return rec.diffs.find((d) => d.field === fieldName) || null;
 }
 
-function tdCell(rec, value, fieldName, extraClass = "") {
+function tdCell(rec, value, fieldName, extraClass = "", colKey = "") {
   const diff = fieldName ? getDiffObj(rec, fieldName) : null;
+  const colAttr = colKey ? ` data-col="${colKey}"` : "";
   if (diff) {
     const tip = `Berbeda dengan Basis Data: ${diff.master}`;
     const cls = extraClass ? `${extraClass} cell-diff` : "cell-diff";
-    return `<td class="${cls}" title="${escapeHtml(tip)}">${escapeHtml(value || "-")}</td>`;
+    return `<td class="${cls}"${colAttr} title="${escapeHtml(tip)}">${escapeHtml(value || "-")}</td>`;
   }
-  return extraClass ? `<td class="${extraClass}">${escapeHtml(value || "-")}</td>` : `<td>${escapeHtml(value || "-")}</td>`;
+  return extraClass ? `<td class="${extraClass}"${colAttr}>${escapeHtml(value || "-")}</td>` : `<td${colAttr}>${escapeHtml(value || "-")}</td>`;
 }
 
 function renderStatusPill(statusText) {
@@ -297,29 +397,29 @@ function renderTable() {
 
     rowsHtml.push(`
       <tr class="data-row ${rec.has_diff ? "row-has-diff" : ""}">
-        <td class="sticky-no">${idx + 1}</td>
-        ${tdCell(rec, rec.nkk, "NKK", "sticky-nkk")}
-        <td class="sticky-nik">${escapeHtml(rec.nik)}</td>
-        <td class="sticky-nama nama-cell ${namaDiff ? "cell-diff" : ""}" title="${namaDiff ? escapeHtml("Basis Data: " + namaDiff.master) : ""}">
+        <td class="sticky-no" data-col="no">${idx + 1}</td>
+        ${tdCell(rec, rec.nkk, "NKK", "sticky-nkk", "nkk")}
+        <td class="sticky-nik" data-col="nik">${escapeHtml(rec.nik)}</td>
+        <td class="sticky-nama nama-cell ${namaDiff ? "cell-diff" : ""}" data-col="nama" title="${namaDiff ? escapeHtml("Basis Data: " + namaDiff.master) : ""}">
           <div class="nama-text">
             <span>${escapeHtml(rec.nama || "-")}</span>
             ${diffBadge}
           </div>
         </td>
-        ${tdCell(rec, rec.tempat_lahir, "TEMPAT_LAHIR")}
-        ${tdCell(rec, rec.tanggal_lahir, "TANGGAL_LAHIR")}
-        ${tdCell(rec, rec.kelamin, "KELAMIN")}
-        ${tdCell(rec, rec.sts_kawin, "STS_KAWIN")}
-        ${tdCell(rec, rec.alamat, "ALAMAT")}
-        <td>${escapeHtml(rec.rt || "-")}</td>
-        <td>${escapeHtml(rec.rw || "-")}</td>
-        ${tdCell(rec, rec.kelurahan, "KELURAHAN")}
-        ${tdCell(rec, rec.kecamatan, "KECAMATAN")}
-        <td>${escapeHtml(rec.kab_kota || "-")}</td>
-        <td>${escapeHtml(rec.provinsi || "-")}</td>
-        <td>${escapeHtml(rec.updated_at || "-")}</td>
-        <td>${escapeHtml(rec.kategori_data || "-")}</td>
-        <td class="aksi-cell">
+        ${tdCell(rec, rec.tempat_lahir, "TEMPAT_LAHIR", "", "tempat_lahir")}
+        ${tdCell(rec, rec.tanggal_lahir, "TANGGAL_LAHIR", "", "tanggal_lahir")}
+        ${tdCell(rec, rec.kelamin, "KELAMIN", "", "kelamin")}
+        ${tdCell(rec, rec.sts_kawin, "STS_KAWIN", "", "sts_kawin")}
+        ${tdCell(rec, rec.alamat, "ALAMAT", "", "alamat")}
+        <td data-col="rt">${escapeHtml(rec.rt || "-")}</td>
+        <td data-col="rw">${escapeHtml(rec.rw || "-")}</td>
+        ${tdCell(rec, rec.kelurahan, "KELURAHAN", "", "kelurahan")}
+        ${tdCell(rec, rec.kecamatan, "KECAMATAN", "", "kecamatan")}
+        <td data-col="kab_kota">${escapeHtml(rec.kab_kota || "-")}</td>
+        <td data-col="provinsi">${escapeHtml(rec.provinsi || "-")}</td>
+        <td data-col="updated_at">${escapeHtml(rec.updated_at || "-")}</td>
+        <td data-col="kategori_data">${escapeHtml(rec.kategori_data || "-")}</td>
+        <td class="aksi-cell" data-col="aksi">
           <div class="row-actions">
             ${editBtn}
             <button type="button" class="btn btn-xs btn-ss" data-toggle-ss="${rec.sheet_row}">
@@ -327,8 +427,8 @@ function renderTable() {
             </button>
           </div>
         </td>
-        <td>${renderKesimpulanPill(rec.kesimpulan)}</td>
-        <td>${renderStatusPill(rec.status)}</td>
+        <td data-col="kesimpulan">${renderKesimpulanPill(rec.kesimpulan)}</td>
+        <td data-col="status">${renderStatusPill(rec.status)}</td>
       </tr>
     `);
 
@@ -338,6 +438,7 @@ function renderTable() {
   });
 
   tbody.innerHTML = rowsHtml.join("");
+  applyColumnVisibility();
 }
 
 /* ==================== EDIT MODAL (ADMIN ONLY) ==================== */
@@ -477,6 +578,46 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("btn-refresh").addEventListener("click", loadData);
   $("btn-export-csv").addEventListener("click", downloadCsv);
   $("btn-export-xlsx").addEventListener("click", downloadExcel);
+
+  // Inisialisasi & event tombol Atur Kolom
+  loadVisibleCols();
+  renderColumnPicker();
+  applyColumnVisibility();
+
+  const colPickerBtn = $("btn-col-picker");
+  const colPickerMenu = $("col-picker-menu");
+  if (colPickerBtn && colPickerMenu) {
+    colPickerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      colPickerMenu.classList.toggle("hidden");
+    });
+    colPickerMenu.addEventListener("click", (e) => e.stopPropagation());
+    document.addEventListener("click", () => colPickerMenu.classList.add("hidden"));
+
+    $("col-picker-list").addEventListener("change", (e) => {
+      const cb = e.target.closest("[data-col-toggle]");
+      if (!cb) return;
+      const key = cb.getAttribute("data-col-toggle");
+      if (cb.checked) {
+        visibleCols.add(key);
+      } else {
+        if (visibleCols.size <= 1) {
+          cb.checked = true;
+          return;
+        }
+        visibleCols.delete(key);
+      }
+      saveVisibleCols();
+      applyColumnVisibility();
+    });
+
+    $("btn-cols-all").addEventListener("click", () => {
+      visibleCols = new Set(TABLE_COLUMNS.map((c) => c.key));
+      saveVisibleCols();
+      renderColumnPicker();
+      applyColumnVisibility();
+    });
+  }
 
   $("btn-sync-sheet1").addEventListener("click", async () => {
     const btn = $("btn-sync-sheet1");
