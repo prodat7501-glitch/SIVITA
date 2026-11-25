@@ -414,13 +414,25 @@ function downloadExcel() {
 
 /* ==================== EVENT LISTENERS ==================== */
 document.addEventListener("DOMContentLoaded", async () => {
-  // Quick-fill username helper pada halaman login
-  document.querySelectorAll("[data-fill-role]").forEach((btn) => {
+  // Role tab switcher pada halaman login
+  const roleBtns = document.querySelectorAll("[data-fill-role]");
+  roleBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
+      roleBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
       $("login-username").value = btn.getAttribute("data-fill-role");
       $("login-password").focus();
     });
   });
+
+  // Toggle tampilkan/sembunyikan password
+  const togglePwdBtn = $("toggle-password");
+  if (togglePwdBtn) {
+    togglePwdBtn.addEventListener("click", () => {
+      const inp = $("login-password");
+      inp.type = inp.type === "password" ? "text" : "password";
+    });
+  }
 
   $("login-form").addEventListener("submit", async (e) => {
     e.preventDefault();
