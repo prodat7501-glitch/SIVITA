@@ -222,6 +222,52 @@
         </article>
       </section>
 
+      <!-- KARTU REKAP KESIMPULAN (OTOMATIS MENGIKUTI KATEGORI DATA / WILAYAH — KLIK UNTUK FILTER) -->
+      <section class="ks-grid" aria-label="Rekap Kesimpulan">
+        <article class="ks-card ks-valid" data-ks-filter="VALID" title="Klik untuk memfilter data VALID">
+          <div class="ks-head"><span class="ks-dot"></span><span>VALID</span></div>
+          <div class="ks-body">
+            <strong id="ks-count-valid" class="ks-value">0</strong>
+            <span id="ks-pct-valid" class="ks-pct">0%</span>
+          </div>
+        </article>
+        <article class="ks-card ks-anomali" data-ks-filter="ANOMALI" title="Klik untuk memfilter data ANOMALI">
+          <div class="ks-head"><span class="ks-dot"></span><span>ANOMALI</span></div>
+          <div class="ks-body">
+            <strong id="ks-count-anomali" class="ks-value">0</strong>
+            <span id="ks-pct-anomali" class="ks-pct">0%</span>
+          </div>
+        </article>
+        <article class="ks-card ks-ganda" data-ks-filter="GANDA" title="Klik untuk memfilter data GANDA">
+          <div class="ks-head"><span class="ks-dot"></span><span>GANDA</span></div>
+          <div class="ks-body">
+            <strong id="ks-count-ganda" class="ks-value">0</strong>
+            <span id="ks-pct-ganda" class="ks-pct">0%</span>
+          </div>
+        </article>
+        <article class="ks-card ks-meninggal" data-ks-filter="MENINGGAL" title="Klik untuk memfilter data MENINGGAL">
+          <div class="ks-head"><span class="ks-dot"></span><span>MENINGGAL</span></div>
+          <div class="ks-body">
+            <strong id="ks-count-meninggal" class="ks-value">0</strong>
+            <span id="ks-pct-meninggal" class="ks-pct">0%</span>
+          </div>
+        </article>
+        <article class="ks-card ks-nonaktif" data-ks-filter="NON AKTIF" title="Klik untuk memfilter data NON AKTIF">
+          <div class="ks-head"><span class="ks-dot"></span><span>NON AKTIF</span></div>
+          <div class="ks-body">
+            <strong id="ks-count-nonaktif" class="ks-value">0</strong>
+            <span id="ks-pct-nonaktif" class="ks-pct">0%</span>
+          </div>
+        </article>
+        <article class="ks-card ks-tidakada" data-ks-filter="TIDAK TERDAPAT DALAM DATABASE" title="Klik untuk memfilter data TIDAK TERDAPAT DALAM DATABASE">
+          <div class="ks-head"><span class="ks-dot"></span><span>TIDAK ADA DI DB</span></div>
+          <div class="ks-body">
+            <strong id="ks-count-tidakada" class="ks-value">0</strong>
+            <span id="ks-pct-tidakada" class="ks-pct">0%</span>
+          </div>
+        </article>
+      </section>
+
       <!-- TOOLBAR PENCARIAN, FILTER & EXPORT (2 ZONA RAPI) -->
       <section class="toolbar-card">
         <div class="toolbar-top">
@@ -298,6 +344,9 @@
             </svg>
             Filter:
           </span>
+          <select id="filter-kategori" class="select-input" title="Filter berdasarkan Kategori Data (juga menghitung ulang Kartu Rekap di atas)">
+            <option value="ALL">Semua Kategori Data</option>
+          </select>
           <select id="filter-kecamatan" class="select-input" title="Filter berdasarkan Kecamatan">
             <option value="ALL">Semua Kecamatan</option>
           </select>

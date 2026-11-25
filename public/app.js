@@ -254,15 +254,28 @@ async function loadData() {
   }
 }
 
+function getRecapScopeRecords() {
+  const fKategori = $("filter-kategori") ? $("filter-kategori").value : "ALL";
+  const fKecamatan = $("filter-kecamatan") ? $("filter-kecamatan").value : "ALL";
+  const fKelurahan = $("filter-kelurahan") ? $("filter-kelurahan").value : "ALL";
+  return allRecords.filter((r) => {
+    if (fKategori !== "ALL" && String(r.kategori_data || "").trim() !== fKategori) return false;
+    if (fKecamatan !== "ALL" && String(r.kecamatan || "").trim().toUpperCase() !== fKecamatan) return false;
+    if (fKelurahan !== "ALL" && String(r.kelurahan || "").trim().toUpperCase() !== fKelurahan) return false;
+    return true;
+  });
+}
+
 function updateKpis() {
-  const total = allRecords.length;
-  const gorontalo = allRecords.filter((r) => r.status === "Penduduk Kabupaten Gorontalo").length;
-  const luar = allRecords.filter((r) => r.status === "Bukan Penduduk Kabupaten Gorontalo").length;
-  const diffAll = allRecords.filter((r) => r.has_diff);
+  const scope = getRecapScopeRecords();
+  const total = scope.length;
+  const gorontalo = scope.filter((r) => r.status === "Penduduk Kabupaten Gorontalo").length;
+  const luar = scope.filter((r) => r.status === "Bukan Penduduk Kabupaten Gorontalo").length;
+  const diffAll = scope.filter((r) => r.has_diff);
   const diff = diffAll.length;
   const diffUnverified = diffAll.filter((r) => !r.verified).length;
   const diffVerified = diff - diffUnverified;
-  const verifiedTotal = allRecords.filter((r) => r.verified).length;
+  const verifiedTotal = scope.filter((r) => r.verified).length;
 
   const pct = (n) => (total > 0 ? Math.round((n / total) * 1000) / 10 : 0);
 
@@ -284,6 +297,38 @@ function updateKpis() {
 
   $("kpi-diff-sub").textContent = `${diffUnverified.toLocaleString("id-ID")} belum dicek • ${diffVerified.toLocaleString("id-ID")} sudah dicek`;
   $("kpi-diff-bar").style.width = `${pct(diff)}%`;
+
+  // Update 6 Kartu Rekap Kesimpulan (VALID, ANOMALI, GANDA, MENINGGAL, NON AKTIF, TIDAK TERDAPAT DALAM DATABASE)
+  const ksCounts = {
+    VALID: 0,
+    ANOMALI: 0,
+    GANDA: 0,
+    MENINGGAL: 0,
+    "NON AKTIF": 0,
+    "TIDAK TERDAPAT DALAM DATABASE": 0,
+  };
+  scope.forEach((r) => {
+    const k = String(r.kesimpulan || "").toUpperCase().trim();
+    if (Object.prototype.hasOwnProperty.call(ksCounts, k)) {
+      ksCounts[k]++;
+    }
+  });
+
+  const ksMap = [
+    ["VALID", "ks-count-valid", "ks-pct-valid"],
+    ["ANOMALI", "ks-count-anomali", "ks-pct-anomali"],
+    ["GANDA", "ks-count-ganda", "ks-pct-ganda"],
+    ["MENINGGAL", "ks-count-meninggal", "ks-pct-meninggal"],
+    ["NON AKTIF", "ks-count-nonaktif", "ks-pct-nonaktif"],
+    ["TIDAK TERDAPAT DALAM DATABASE", "ks-count-tidakada", "ks-pct-tidakada"],
+  ];
+  ksMap.forEach(([key, countId, pctId]) => {
+    const c = ksCounts[key];
+    const cEl = $(countId);
+    const pEl = $(pctId);
+    if (cEl) cEl.textContent = c.toLocaleString("id-ID");
+    if (pEl) pEl.textContent = `${pct(c).toLocaleString("id-ID")}%`;
+  });
 }
 
 function populateKelurahanFilter() {
@@ -311,6 +356,21 @@ function populateKelurahanFilter() {
 }
 
 function populateWilayahFilters() {
+  const katSel = $("filter-kategori");
+  if (katSel) {
+    const prevKat = katSel.value;
+    const katSet = new Set();
+    allRecords.forEach((r) => {
+      const k = String(r.kategori_data || "").trim();
+      if (k) katSet.add(k);
+    });
+    const sortedKat = Array.from(katSet).sort((a, b) => a.localeCompare(b, "id"));
+    katSel.innerHTML =
+      `<option value="ALL">Semua Kategori Data</option>` +
+      sortedKat.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+    katSel.value = katSet.has(prevKat) ? prevKat : "ALL";
+  }
+
   const kecSel = $("filter-kecamatan");
   if (!kecSel) return;
   const prevKec = kecSel.value;
@@ -331,15 +391,21 @@ function populateWilayahFilters() {
 }
 
 function syncActiveFilterStyles() {
-  ["filter-kecamatan", "filter-kelurahan", "filter-kesimpulan", "filter-status", "filter-verifikasi"].forEach((id) => {
+  ["filter-kategori", "filter-kecamatan", "filter-kelurahan", "filter-kesimpulan", "filter-status", "filter-verifikasi"].forEach((id) => {
     const el = $(id);
     if (el) el.classList.toggle("filter-active", el.value !== "ALL");
+  });
+  const curKs = $("filter-kesimpulan") ? $("filter-kesimpulan").value : "ALL";
+  document.querySelectorAll("[data-ks-filter]").forEach((card) => {
+    card.classList.toggle("ks-card-active", card.getAttribute("data-ks-filter") === curKs);
   });
 }
 
 function applyFiltersAndRender() {
   syncActiveFilterStyles();
+  updateKpis();
   const q = ($("search-input").value || "").trim().toLowerCase();
+  const fKategori = $("filter-kategori") ? $("filter-kategori").value : "ALL";
   const fKecamatan = $("filter-kecamatan").value;
   const fKelurahan = $("filter-kelurahan").value;
   const fKesimpulan = $("filter-kesimpulan").value;
@@ -347,6 +413,7 @@ function applyFiltersAndRender() {
   const fVerifikasi = $("filter-verifikasi").value;
 
   filteredRecords = allRecords.filter((r) => {
+    if (fKategori !== "ALL" && String(r.kategori_data || "").trim() !== fKategori) return false;
     const rKec = String(r.kecamatan || "").trim().toUpperCase();
     const rKel = String(r.kelurahan || "").trim().toUpperCase();
     if (fKecamatan !== "ALL" && rKec !== fKecamatan) return false;
@@ -880,6 +947,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
   $("search-input").addEventListener("input", applyFiltersAndRender);
+  $("filter-kategori").addEventListener("change", applyFiltersAndRender);
   $("filter-kecamatan").addEventListener("change", () => {
     populateKelurahanFilter();
     applyFiltersAndRender();
@@ -890,6 +958,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("filter-verifikasi").addEventListener("change", applyFiltersAndRender);
   $("btn-reset-filters").addEventListener("click", () => {
     $("search-input").value = "";
+    $("filter-kategori").value = "ALL";
     $("filter-kecamatan").value = "ALL";
     populateKelurahanFilter();
     $("filter-kelurahan").value = "ALL";
@@ -899,17 +968,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyFiltersAndRender();
   });
 
-  // Klik Kartu KPI untuk filter cepat
+  // Klik Kartu KPI untuk filter cepat (tetap mempertahankan Kategori Data & Wilayah yang sedang dipilih!)
   document.querySelectorAll("[data-kpi-filter]").forEach((card) => {
     card.addEventListener("click", () => {
       const mode = card.getAttribute("data-kpi-filter");
-      $("search-input").value = "";
-      $("filter-kecamatan").value = "ALL";
-      populateKelurahanFilter();
-      $("filter-kelurahan").value = "ALL";
       $("filter-kesimpulan").value = "ALL";
       $("filter-status").value = mode === "GORONTALO" || mode === "NON_GORONTALO" ? mode : "ALL";
       $("filter-verifikasi").value = mode === "DIFF_UNVERIFIED" ? "DIFF_UNVERIFIED" : "ALL";
+      applyFiltersAndRender();
+    });
+  });
+
+  // Klik Kartu Rekap Kesimpulan untuk filter cepat (klik ulang untuk reset ke Semua Kesimpulan)
+  document.querySelectorAll("[data-ks-filter]").forEach((card) => {
+    card.addEventListener("click", () => {
+      const targetKs = card.getAttribute("data-ks-filter");
+      const sel = $("filter-kesimpulan");
+      sel.value = sel.value === targetKs ? "ALL" : targetKs;
       applyFiltersAndRender();
     });
   });

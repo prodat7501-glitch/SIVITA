@@ -807,6 +807,102 @@ body {
   background: var(--red-600);
 }
 
+/* ==================== KARTU REKAP KESIMPULAN (6 MINI CARDS) ==================== */
+.ks-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ks-card {
+  background: var(--white);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  padding: 10px 13px;
+  box-shadow: 0 1px 6px rgba(6, 40, 30, 0.04);
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+
+.ks-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(6, 40, 30, 0.09);
+}
+
+.ks-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--slate-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ks-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ks-body {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.ks-value {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--slate-900);
+}
+
+.ks-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--slate-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.ks-valid .ks-dot { background: #15803d; }
+.ks-valid.ks-card-active { border-color: #15803d; background: #f0fdf4; }
+
+.ks-anomali .ks-dot { background: #d97706; }
+.ks-anomali.ks-card-active { border-color: #d97706; background: #fffbeb; }
+
+.ks-ganda .ks-dot { background: #7c3aed; }
+.ks-ganda.ks-card-active { border-color: #7c3aed; background: #f5f3ff; }
+
+.ks-meninggal .ks-dot { background: #475569; }
+.ks-meninggal.ks-card-active { border-color: #475569; background: #f8fafc; }
+
+.ks-nonaktif .ks-dot { background: #ea580c; }
+.ks-nonaktif.ks-card-active { border-color: #ea580c; background: #fff7ed; }
+
+.ks-tidakada .ks-dot { background: #dc2626; }
+.ks-tidakada.ks-card-active { border-color: #dc2626; background: #fef2f2; }
+
+@media (max-width: 1100px) {
+  .ks-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .ks-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* ==================== TOOLBAR (2 ZONA MODERN) ==================== */
 .toolbar-card {
   background: var(--white);
