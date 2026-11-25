@@ -226,6 +226,28 @@ function renderInlineScreenshotPanel(rec) {
     `;
   }
 
+  let diffBannerHtml = "";
+  if (rec.has_diff && rec.diffs.length > 0) {
+    const items = rec.diffs
+      .map(
+        (d) =>
+          `<span class="diff-chip"><strong>${escapeHtml(d.field)}:</strong> Basis Data <b>${escapeHtml(d.master)}</b> → DWH <b>${escapeHtml(d.dwh || "-")}</b></span>`
+      )
+      .join("");
+    diffBannerHtml = `
+      <div class="ss-status-bar ss-status-diff">
+        <div class="ss-status-title">Peringatan Perbedaan dengan Basis Data (Sheet 1):</div>
+        <div class="ss-diff-chips">${items}</div>
+      </div>
+    `;
+  } else {
+    diffBannerHtml = `
+      <div class="ss-status-bar ss-status-ok">
+        <strong>Status Kesesuaian Basis Data (Sheet 1):</strong> Seluruh elemen data sesuai dengan Basis Data Sheet 1.
+      </div>
+    `;
+  }
+
   return `
     <tr class="inline-panel-row">
       <td colspan="19">
@@ -241,6 +263,7 @@ function renderInlineScreenshotPanel(rec) {
                 <button type="button" class="btn btn-xs btn-primary" data-toggle-ss="${rec.sheet_row}">Tutup</button>
               </div>
             </div>
+            ${diffBannerHtml}
             ${bodyHtml}
           </div>
         </div>
