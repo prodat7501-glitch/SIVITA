@@ -749,6 +749,21 @@ body {
   font-family: inherit;
 }
 
+.col-picker-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.col-picker-sep {
+  color: var(--slate-200);
+  font-size: 11px;
+}
+
+.link-btn-danger {
+  color: var(--red-600);
+}
+
 .link-btn:hover {
   text-decoration: underline;
 }

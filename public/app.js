@@ -35,13 +35,11 @@ let visibleCols = new Set(TABLE_COLUMNS.map((c) => c.key));
 function loadVisibleCols() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_COLS_KEY) || "null");
-    if (Array.isArray(saved) && saved.length > 0) {
+    if (Array.isArray(saved)) {
       const validKeys = new Set(TABLE_COLUMNS.map((c) => c.key));
       const filtered = saved.filter((k) => validKeys.has(k));
-      if (filtered.length > 0) {
-        visibleCols = new Set(filtered);
-        return;
-      }
+      visibleCols = new Set(filtered);
+      return;
     }
   } catch {}
   visibleCols = new Set(TABLE_COLUMNS.map((c) => c.key));
@@ -609,10 +607,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (cb.checked) {
         visibleCols.add(key);
       } else {
-        if (visibleCols.size <= 1) {
-          cb.checked = true;
-          return;
-        }
         visibleCols.delete(key);
       }
       saveVisibleCols();
@@ -621,6 +615,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     $("btn-cols-all").addEventListener("click", () => {
       visibleCols = new Set(TABLE_COLUMNS.map((c) => c.key));
+      saveVisibleCols();
+      renderColumnPicker();
+      applyColumnVisibility();
+    });
+
+    $("btn-cols-none").addEventListener("click", () => {
+      visibleCols = new Set();
       saveVisibleCols();
       renderColumnPicker();
       applyColumnVisibility();

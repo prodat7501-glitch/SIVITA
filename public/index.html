@@ -185,7 +185,11 @@
             <div id="col-picker-menu" class="col-picker-menu hidden">
               <div class="col-picker-header">
                 <span>Pilih Kolom Tabel</span>
-                <button id="btn-cols-all" type="button" class="link-btn">Tampilkan Semua</button>
+                <div class="col-picker-actions">
+                  <button id="btn-cols-all" type="button" class="link-btn">Semua</button>
+                  <span class="col-picker-sep">|</span>
+                  <button id="btn-cols-none" type="button" class="link-btn link-btn-danger">Hapus Semua</button>
+                </div>
               </div>
               <div id="col-picker-list" class="col-picker-list"></div>
             </div>
