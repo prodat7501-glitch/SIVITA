@@ -98,14 +98,14 @@ function logout(silent = false) {
 /* ==================== DATA LOADING & FILTERING ==================== */
 async function loadData() {
   const tbody = $("table-body");
-  tbody.innerHTML = `<tr><td colspan="19" class="empty-cell">Sedang Memuat Data...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="20" class="empty-cell">Sedang Memuat Data...</td></tr>`;
   try {
     const res = await apiPost({ action: "get_data" });
     allRecords = Array.isArray(res.records) ? res.records : [];
     updateKpis();
     applyFiltersAndRender();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="19" class="empty-cell">Gagal memuat data: ${escapeHtml(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="20" class="empty-cell">Gagal memuat data: ${escapeHtml(err.message)}</td></tr>`;
     showBanner(`Gagal memuat data: ${err.message}`, true);
   }
 }
@@ -149,6 +149,7 @@ function applyFiltersAndRender() {
         r.provinsi,
         r.status,
         r.kesimpulan,
+        r.kategori_data,
       ]
         .join(" ")
         .toLowerCase();
@@ -250,7 +251,7 @@ function renderInlineScreenshotPanel(rec) {
 
   return `
     <tr class="inline-panel-row">
-      <td colspan="19">
+      <td colspan="20">
         <div class="inline-panel-sticky">
           <div class="ss-box">
             <div class="ss-box-header">
@@ -275,7 +276,7 @@ function renderInlineScreenshotPanel(rec) {
 function renderTable() {
   const tbody = $("table-body");
   if (!filteredRecords.length) {
-    tbody.innerHTML = `<tr><td colspan="19" class="empty-cell">Tidak ada data yang cocok dengan filter pencarian.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="20" class="empty-cell">Tidak ada data yang cocok dengan filter pencarian.</td></tr>`;
     return;
   }
 
@@ -316,6 +317,7 @@ function renderTable() {
         <td>${escapeHtml(rec.kab_kota || "-")}</td>
         <td>${escapeHtml(rec.provinsi || "-")}</td>
         <td>${escapeHtml(rec.updated_at || "-")}</td>
+        <td>${escapeHtml(rec.kategori_data || "-")}</td>
         <td class="aksi-cell">
           <div class="row-actions">
             ${editBtn}
@@ -386,6 +388,7 @@ function getExportRows() {
     RT: r.rt || "-",
     RW: r.rw || "-",
     UPDATED_AT: r.updated_at || "",
+    KATEGORI_DATA: r.kategori_data || "",
     STATUS: r.status || "",
     KESIMPULAN: r.kesimpulan || "",
   }));
