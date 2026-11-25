@@ -175,6 +175,28 @@ module.exports = async function handler(req, res) {
         action: "sivita_update_record",
         sheet_row: Number(body.sheet_row),
         record: body.record || {},
+        actor: session.name || session.username,
+      });
+      return res.status(200).json(gasRes);
+    } catch (err) {
+      return res.status(502).json({ status: "error", message: err.message });
+    }
+  }
+
+  // 4b. Tandai / Batalkan Verifikasi Data 1-Klik (KHUSUS ADMIN)
+  if (action === "toggle_verify") {
+    if (session.role !== "admin") {
+      return res.status(403).json({
+        status: "error",
+        message: "Akses ditolak: Hanya akun Admin yang dapat memverifikasi data.",
+      });
+    }
+    try {
+      const gasRes = await callGas(webhookUrl, {
+        action: "sivita_toggle_verify",
+        sheet_row: Number(body.sheet_row),
+        verified: Boolean(body.verified),
+        actor: session.name || session.username,
       });
       return res.status(200).json(gasRes);
     } catch (err) {

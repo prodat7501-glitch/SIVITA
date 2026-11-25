@@ -244,6 +244,8 @@ function applyFiltersAndRender() {
     if (fStatus === "GORONTALO" && r.status !== "Penduduk Kabupaten Gorontalo") return false;
     if (fStatus === "NON_GORONTALO" && r.status !== "Bukan Penduduk Kabupaten Gorontalo") return false;
     if (fStatus === "DIFF_ONLY" && !r.has_diff) return false;
+    if (fStatus === "DIFF_UNVERIFIED" && (!r.has_diff || r.verified)) return false;
+    if (fStatus === "VERIFIED_ONLY" && !r.verified) return false;
     if (fStatus === "KS_ANOMALI" && ks !== "ANOMALI") return false;
     if (fStatus === "KS_GANDA" && ks !== "GANDA") return false;
     if (fStatus === "KS_MENINGGAL" && ks !== "MENINGGAL") return false;
@@ -364,6 +366,13 @@ function renderInlineScreenshotPanel(rec) {
     `;
   }
 
+  const isAdmin = currentUser && currentUser.role === "admin";
+  const verifyBtnHtml = isAdmin
+    ? rec.verified
+      ? `<button type="button" class="btn btn-xs btn-verified-done" data-toggle-verify="${rec.sheet_row}" data-next-verify="0" title="${escapeHtml(rec.verified_info || "Sudah dicek — klik untuk batalkan")}">✓ Sudah Dicek</button>`
+      : `<button type="button" class="btn btn-xs btn-verify" data-toggle-verify="${rec.sheet_row}" data-next-verify="1" title="Tandai data ini sudah diverifikasi sesuai tangkapan layar DWH">✓ Tandai Sudah Dicek</button>`
+    : "";
+
   return `
     <tr class="inline-panel-row">
       <td colspan="20">
@@ -372,6 +381,7 @@ function renderInlineScreenshotPanel(rec) {
             <div class="ss-box-header">
               <span>Tangkapan Layar DWH — ${escapeHtml(rec.nama || "-")} (${escapeHtml(rec.nik)})</span>
               <div class="ss-controls">
+                ${verifyBtnHtml}
                 <button type="button" class="btn btn-xs btn-outline" data-zoom-out="${rec.sheet_row}" title="Perkecil">− Zoom Out</button>
                 <span class="zoom-label">${zoom}%</span>
                 <button type="button" class="btn btn-xs btn-outline" data-zoom-in="${rec.sheet_row}" title="Perbesar">+ Zoom In</button>
@@ -404,6 +414,9 @@ function renderTable() {
     const diffBadge = rec.has_diff
       ? `<span class="diff-pill" title="Terdapat ${rec.diffs.length} elemen berbeda dengan Basis Data">! ${rec.diffs.length}</span>`
       : "";
+    const verifiedBadge = rec.verified
+      ? `<span class="verified-pill" title="${escapeHtml(rec.verified_info || "Sudah diverifikasi")}">✓ Dicek</span>`
+      : "";
 
     const editBtn = isAdmin
       ? `<button type="button" class="btn btn-xs btn-edit" data-edit-row="${rec.sheet_row}">Edit</button>`
@@ -418,6 +431,7 @@ function renderTable() {
           <div class="nama-text">
             <span>${escapeHtml(rec.nama || "-")}</span>
             ${diffBadge}
+            ${verifiedBadge}
           </div>
         </td>
         ${tdCell(rec, rec.tempat_lahir, "TEMPAT_LAHIR", "", "tempat_lahir")}
@@ -535,6 +549,7 @@ function getExportRows() {
     KATEGORI_DATA: r.kategori_data || "",
     STATUS: r.status || "",
     KESIMPULAN: r.kesimpulan || "",
+    VERIFIKASI: r.verified_info || "",
   }));
 }
 
@@ -771,6 +786,37 @@ document.addEventListener("DOMContentLoaded", async () => {
       const rowNum = Number(zReset.getAttribute("data-zoom-reset"));
       zoomLevels.set(rowNum, 100);
       renderTable();
+      return;
+    }
+    const verifyBtn = e.target.closest("[data-toggle-verify]");
+    if (verifyBtn) {
+      const rowNum = Number(verifyBtn.getAttribute("data-toggle-verify"));
+      const nextVal = verifyBtn.getAttribute("data-next-verify") === "1";
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = "Menyimpan...";
+      apiPost({ action: "toggle_verify", sheet_row: rowNum, verified: nextVal })
+        .then((res) => {
+          const targetRec = allRecords.find((r) => r.sheet_row === rowNum);
+          if (targetRec) {
+            targetRec.verified = Boolean(res.verified);
+            targetRec.verified_info = res.verified_info || "";
+          }
+          if (nextVal && $("filter-status").value === "DIFF_UNVERIFIED") {
+            expandedRows.delete(rowNum);
+            zoomLevels.delete(rowNum);
+          }
+          applyFiltersAndRender();
+          showBanner(
+            nextVal
+              ? "Data berhasil ditandai Sudah Dicek (Terverifikasi)."
+              : "Tanda verifikasi pada data ini telah dibatalkan."
+          );
+        })
+        .catch((err) => {
+          verifyBtn.disabled = false;
+          verifyBtn.textContent = nextVal ? "✓ Tandai Sudah Dicek" : "✓ Sudah Dicek";
+          showBanner(`Gagal memperbarui status verifikasi: ${err.message}`, true);
+        });
       return;
     }
     const editBtn = e.target.closest("[data-edit-row]");
