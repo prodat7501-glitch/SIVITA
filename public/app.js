@@ -97,14 +97,14 @@ function logout(silent = false) {
 /* ==================== DATA LOADING & FILTERING ==================== */
 async function loadData() {
   const tbody = $("table-body");
-  tbody.innerHTML = `<tr><td colspan="17" class="empty-cell">Memuat data Hasil Pengecekan DWH dari Google Sheets...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="18" class="empty-cell">Memuat data Hasil Pengecekan DWH dari Google Sheets...</td></tr>`;
   try {
     const res = await apiPost({ action: "get_data" });
     allRecords = Array.isArray(res.records) ? res.records : [];
     updateKpis();
     applyFiltersAndRender();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="17" class="empty-cell">Gagal memuat data: ${escapeHtml(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="18" class="empty-cell">Gagal memuat data: ${escapeHtml(err.message)}</td></tr>`;
     showBanner(`Gagal memuat data: ${err.message}`, true);
   }
 }
@@ -126,9 +126,15 @@ function applyFiltersAndRender() {
   const fStatus = $("filter-status").value;
 
   filteredRecords = allRecords.filter((r) => {
+    const ks = String(r.kesimpulan || "").toUpperCase();
     if (fStatus === "GORONTALO" && r.status !== "Penduduk Kabupaten Gorontalo") return false;
     if (fStatus === "NON_GORONTALO" && r.status !== "Bukan Penduduk Kabupaten Gorontalo") return false;
     if (fStatus === "DIFF_ONLY" && !r.has_diff) return false;
+    if (fStatus === "KS_ANOMALI" && ks !== "ANOMALI") return false;
+    if (fStatus === "KS_GANDA" && ks !== "GANDA") return false;
+    if (fStatus === "KS_MENINGGAL" && ks !== "MENINGGAL") return false;
+    if (fStatus === "KS_NON_AKTIF" && ks !== "NON AKTIF") return false;
+    if (fStatus === "KS_TIDAK_ADA" && ks !== "TIDAK TERDAPAT DALAM DATABASE") return false;
 
     if (q) {
       const hay = [
@@ -141,6 +147,7 @@ function applyFiltersAndRender() {
         r.kab_kota,
         r.provinsi,
         r.status,
+        r.kesimpulan,
       ]
         .join(" ")
         .toLowerCase();
@@ -176,6 +183,17 @@ function renderStatusPill(statusText) {
     return `<span class="status-pill status-luar">${escapeHtml(s)}</span>`;
   }
   return `<span class="status-pill status-alert">${escapeHtml(s || "-")}</span>`;
+}
+
+function renderKesimpulanPill(ksText) {
+  const k = String(ksText || "").toUpperCase().trim();
+  if (k === "VALID") {
+    return `<span class="status-pill status-gorontalo">VALID</span>`;
+  }
+  if (k === "ANOMALI") {
+    return `<span class="status-pill status-luar">ANOMALI</span>`;
+  }
+  return `<span class="status-pill status-alert">${escapeHtml(k || "-")}</span>`;
 }
 
 function renderInlineScreenshotPanel(rec) {
@@ -241,7 +259,7 @@ function renderInlineScreenshotPanel(rec) {
 
   return `
     <tr class="inline-panel-row">
-      <td colspan="17">
+      <td colspan="18">
         <div class="inline-panel">
           ${ssHtml}
           ${diffHtml}
@@ -254,7 +272,7 @@ function renderInlineScreenshotPanel(rec) {
 function renderTable() {
   const tbody = $("table-body");
   if (!filteredRecords.length) {
-    tbody.innerHTML = `<tr><td colspan="17" class="empty-cell">Tidak ada data yang cocok dengan filter pencarian.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="18" class="empty-cell">Tidak ada data yang cocok dengan filter pencarian.</td></tr>`;
     return;
   }
 
@@ -287,6 +305,7 @@ function renderTable() {
             ${editBtn}
           </div>
         </td>
+        <td>${renderKesimpulanPill(rec.kesimpulan)}</td>
         <td>${renderStatusPill(rec.status)}</td>
         <td>${escapeHtml(rec.nik)}</td>
         ${tdCell(rec, rec.nkk, "NKK")}
@@ -334,6 +353,7 @@ function openEditModal(sheetRow) {
   $("edit-kecamatan").value = rec.kecamatan || "";
   $("edit-kab-kota").value = rec.kab_kota || "";
   $("edit-provinsi").value = rec.provinsi || "";
+  $("edit-kesimpulan").value = rec.kesimpulan || "VALID";
   $("edit-error").classList.add("hidden");
 
   $("edit-modal").classList.remove("hidden");
@@ -362,6 +382,7 @@ function getExportRows() {
     RW: r.rw || "-",
     UPDATED_AT: r.updated_at || "",
     STATUS: r.status || "",
+    KESIMPULAN: r.kesimpulan || "",
   }));
 }
 
@@ -495,6 +516,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         kecamatan: $("edit-kecamatan").value.trim(),
         kab_kota: $("edit-kab-kota").value.trim(),
         provinsi: $("edit-provinsi").value.trim(),
+        kesimpulan: $("edit-kesimpulan").value,
       };
       await apiPost({ action: "update_record", sheet_row: sheetRow, record });
       closeEditModal();

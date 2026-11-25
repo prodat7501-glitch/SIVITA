@@ -101,10 +101,15 @@
             placeholder="Cari NIK, NKK, Nama, Alamat, Kelurahan, atau Kecamatan..."
           />
           <select id="filter-status" class="select-input">
-            <option value="ALL">Semua Status</option>
+            <option value="ALL">Semua Status &amp; Kesimpulan</option>
             <option value="GORONTALO">Penduduk Kabupaten Gorontalo</option>
             <option value="NON_GORONTALO">Bukan Penduduk Kabupaten Gorontalo</option>
-            <option value="DIFF_ONLY">Hanya Peringatan Merah (Berbeda dgn Sheet 1)</option>
+            <option value="DIFF_ONLY">Peringatan Merah (Berbeda dgn Sheet 1)</option>
+            <option value="KS_ANOMALI">Kesimpulan: ANOMALI</option>
+            <option value="KS_GANDA">Kesimpulan: GANDA</option>
+            <option value="KS_MENINGGAL">Kesimpulan: MENINGGAL</option>
+            <option value="KS_NON_AKTIF">Kesimpulan: NON AKTIF</option>
+            <option value="KS_TIDAK_ADA">Kesimpulan: TIDAK TERDAPAT DALAM DATABASE</option>
           </select>
         </div>
         <div class="toolbar-right">
@@ -138,6 +143,7 @@
               <tr>
                 <th>No</th>
                 <th>NAMA &amp; AKSI</th>
+                <th>KESIMPULAN</th>
                 <th>STATUS</th>
                 <th>NIK</th>
                 <th>NKK</th>
@@ -157,7 +163,7 @@
             </thead>
             <tbody id="table-body">
               <tr>
-                <td colspan="17" class="empty-cell">Memuat data dari Google Spreadsheet...</td>
+                <td colspan="18" class="empty-cell">Memuat data dari Google Spreadsheet...</td>
               </tr>
             </tbody>
           </table>
@@ -240,6 +246,17 @@
           <div class="field-group">
             <label for="edit-provinsi">PROVINSI</label>
             <input id="edit-provinsi" type="text" />
+          </div>
+          <div class="field-group span-2">
+            <label for="edit-kesimpulan">KESIMPULAN</label>
+            <select id="edit-kesimpulan">
+              <option value="VALID">VALID</option>
+              <option value="ANOMALI">ANOMALI</option>
+              <option value="GANDA">GANDA</option>
+              <option value="MENINGGAL">MENINGGAL</option>
+              <option value="NON AKTIF">NON AKTIF</option>
+              <option value="TIDAK TERDAPAT DALAM DATABASE">TIDAK TERDAPAT DALAM DATABASE</option>
+            </select>
           </div>
         </div>
         <div id="edit-error" class="alert-error hidden"></div>
