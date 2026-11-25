@@ -1,0 +1,9 @@
+{
+  "name": "sivita-dashboard",
+  "version": "1.0.0",
+  "description": "Sistem Informasi Validasi Data (SIVITA) — Dashboard Hasil Pengecekan Portal DWH Dukcapil",
+  "private": true,
+  "engines": {
+    "node": ">=18.x"
+  }
+}

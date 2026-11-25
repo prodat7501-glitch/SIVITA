@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIVITA — Sistem Informasi Validasi Data</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <!-- SheetJS untuk export Excel (.xlsx) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <!-- HALAMAN LOGIN -->
+  <section id="login-view" class="login-shell">
+    <div class="login-card">
+      <div class="brand-mark">
+        <div class="brand-icon">S</div>
+        <div>
+          <h1>SIVITA</h1>
+          <p>Sistem Informasi Validasi Data</p>
+        </div>
+      </div>
+
+      <p class="login-subtitle">
+        Masuk menggunakan akun <strong>Admin</strong> (dapat mengedit data) atau <strong>User</strong> (hanya melihat &amp; mengunduh laporan).
+      </p>
+
+      <div class="role-hint-pills">
+        <button type="button" class="pill-btn" data-fill-role="admin">Isi Cepat: Admin</button>
+        <button type="button" class="pill-btn" data-fill-role="user">Isi Cepat: User</button>
+      </div>
+
+      <form id="login-form" autocomplete="on">
+        <div class="field-group">
+          <label for="login-username">Username</label>
+          <input id="login-username" type="text" placeholder="admin atau user" required />
+        </div>
+        <div class="field-group">
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" placeholder="Masukkan password" required />
+        </div>
+        <div id="login-error" class="alert-error hidden"></div>
+        <button id="login-submit-btn" type="submit" class="btn btn-primary btn-full">
+          Masuk ke SIVITA
+        </button>
+      </form>
+      <div class="login-footer">
+        Terintegrasi dengan BONI &amp; Hasil Pengecekan Portal DWH Dukcapil
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD UTAMA SIVITA -->
+  <div id="app-view" class="app-shell hidden">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand-icon small">S</div>
+        <div>
+          <div class="topbar-title">SIVITA</div>
+          <div class="topbar-sub">Sistem Informasi Validasi Data — Hasil Pengecekan Portal DWH Dukcapil</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span id="user-role-badge" class="role-badge">USER</span>
+        <span id="user-name-label" class="user-name">-</span>
+        <button id="btn-logout" type="button" class="btn btn-ghost">Keluar</button>
+      </div>
+    </header>
+
+    <main class="main-container">
+      <!-- KPI CARDS -->
+      <section class="kpi-grid">
+        <article class="kpi-card">
+          <span class="kpi-label">Total Data Hasil DWH</span>
+          <strong id="kpi-total" class="kpi-value">0</strong>
+        </article>
+        <article class="kpi-card kpi-green">
+          <span class="kpi-label">Penduduk Kab. Gorontalo</span>
+          <strong id="kpi-gorontalo" class="kpi-value">0</strong>
+        </article>
+        <article class="kpi-card kpi-amber">
+          <span class="kpi-label">Bukan Penduduk Kab. Gorontalo</span>
+          <strong id="kpi-luar" class="kpi-value">0</strong>
+        </article>
+        <article class="kpi-card kpi-red">
+          <span class="kpi-label">Peringatan Berbeda dgn Basis Data</span>
+          <strong id="kpi-diff" class="kpi-value">0</strong>
+        </article>
+      </section>
+
+      <!-- TOOLBAR PENCARIAN, FILTER & EXPORT -->
+      <section class="toolbar-card">
+        <div class="toolbar-left">
+          <input
+            id="search-input"
+            type="search"
+            class="search-input"
+            placeholder="Cari NIK, NKK, Nama, Alamat, Kelurahan, atau Kecamatan..."
+          />
+          <select id="filter-status" class="select-input">
+            <option value="ALL">Semua Status</option>
+            <option value="GORONTALO">Penduduk Kabupaten Gorontalo</option>
+            <option value="NON_GORONTALO">Bukan Penduduk Kabupaten Gorontalo</option>
+            <option value="DIFF_ONLY">Hanya Peringatan Merah (Berbeda dgn Sheet 1)</option>
+          </select>
+        </div>
+        <div class="toolbar-right">
+          <button id="btn-refresh" type="button" class="btn btn-outline">Muat Ulang</button>
+          <button id="btn-sync-sheet1" type="button" class="btn btn-outline admin-only hidden">
+            Sinkron Sheet 1 → Hasil_DWH
+          </button>
+          <button id="btn-export-csv" type="button" class="btn btn-secondary">Download CSV</button>
+          <button id="btn-export-xlsx" type="button" class="btn btn-primary">Download Excel</button>
+        </div>
+      </section>
+
+      <!-- BANNER STATUS / INFO -->
+      <div id="status-banner" class="status-banner hidden"></div>
+
+      <!-- TABEL HASIL PENGECEKAN PORTAL DWH -->
+      <section class="table-card">
+        <div class="table-header-bar">
+          <div>
+            <h2>Tabel Hasil Pengecekan Portal DWH Dukcapil</h2>
+            <span id="table-count-label" class="muted-text">Menampilkan 0 data</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-chip chip-red">Sel Merah = Berbeda dengan Basis Data (Sheet 1)</span>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table id="dwh-table" class="data-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>NAMA &amp; AKSI</th>
+                <th>STATUS</th>
+                <th>NIK</th>
+                <th>NKK</th>
+                <th>TEMPAT_LAHIR</th>
+                <th>TANGGAL_LAHIR</th>
+                <th>KELAMIN</th>
+                <th>STS_KAWIN</th>
+                <th>ALAMAT</th>
+                <th>RT</th>
+                <th>RW</th>
+                <th>KELURAHAN</th>
+                <th>KECAMATAN</th>
+                <th>KABUPATEN/KOTA</th>
+                <th>PROVINSI</th>
+                <th>UPDATED_AT</th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <tr>
+                <td colspan="17" class="empty-cell">Memuat data dari Google Spreadsheet...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL EDIT DATA (KHUSUS ADMIN) -->
+  <div id="edit-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Edit Data Hasil Pengecekan DWH</h3>
+        <button id="btn-close-modal" type="button" class="icon-close" aria-label="Tutup">&times;</button>
+      </div>
+      <form id="edit-form" class="modal-body">
+        <input type="hidden" id="edit-sheet-row" />
+        <div class="form-grid">
+          <div class="field-group">
+            <label for="edit-nik">NIK</label>
+            <input id="edit-nik" type="text" required />
+          </div>
+          <div class="field-group">
+            <label for="edit-nkk">NKK</label>
+            <input id="edit-nkk" type="text" />
+          </div>
+          <div class="field-group span-2">
+            <label for="edit-nama">NAMA</label>
+            <input id="edit-nama" type="text" required />
+          </div>
+          <div class="field-group">
+            <label for="edit-tempat-lahir">TEMPAT_LAHIR</label>
+            <input id="edit-tempat-lahir" type="text" />
+          </div>
+          <div class="field-group">
+            <label for="edit-tanggal-lahir">TANGGAL_LAHIR</label>
+            <input id="edit-tanggal-lahir" type="text" placeholder="DD|MM|YYYY" />
+          </div>
+          <div class="field-group">
+            <label for="edit-kelamin">KELAMIN</label>
+            <select id="edit-kelamin">
+              <option value="L">L</option>
+              <option value="P">P</option>
+              <option value="-">-</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="edit-sts-kawin">STS_KAWIN</label>
+            <select id="edit-sts-kawin">
+              <option value="B">B (Belum Kawin)</option>
+              <option value="S">S (Kawin)</option>
+              <option value="P">P (Cerai)</option>
+              <option value="-">-</option>
+            </select>
+          </div>
+          <div class="field-group span-2">
+            <label for="edit-alamat">ALAMAT</label>
+            <input id="edit-alamat" type="text" />
+          </div>
+          <div class="field-group">
+            <label for="edit-rt">RT</label>
+            <input id="edit-rt" type="text" />
+          </div>
+          <div class="field-group">
+            <label for="edit-rw">RW</label>
+            <input id="edit-rw" type="text" />
+          </div>
+          <div class="field-group">
+            <label for="edit-kelurahan">KELURAHAN</label>
+            <input id="edit-kelurahan" type="text" />
+          </div>
+          <div class="field-group">
+            <label for="edit-kecamatan">KECAMATAN</label>
+            <input id="edit-kecamatan" type="text" />
+          </div>
+          <div class="field-group">
+            <label for="edit-kab-kota">KABUPATEN/KOTA</label>
+            <input id="edit-kab-kota" type="text" />
+          </div>
+          <div class="field-group">
+            <label for="edit-provinsi">PROVINSI</label>
+            <input id="edit-provinsi" type="text" />
+          </div>
+        </div>
+        <div id="edit-error" class="alert-error hidden"></div>
+        <div class="modal-footer">
+          <button id="btn-cancel-edit" type="button" class="btn btn-outline">Batal</button>
+          <button id="btn-save-edit" type="submit" class="btn btn-primary">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
