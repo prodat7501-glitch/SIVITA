@@ -131,8 +131,13 @@
         </div>
       </div>
       <div class="topbar-right">
-        <span id="user-role-badge" class="role-badge">USER</span>
-        <span id="user-name-label" class="user-name">-</span>
+        <button id="btn-open-profile" type="button" class="profile-trigger" title="Klik untuk membuka Profil &amp; Ganti Password">
+          <span id="user-role-badge" class="role-badge">USER</span>
+          <span id="user-name-label" class="user-name">-</span>
+          <svg class="profile-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
         <button id="btn-logout" type="button" class="btn btn-ghost">Keluar</button>
       </div>
     </header>
@@ -354,6 +359,59 @@
         <div class="modal-footer">
           <button id="btn-cancel-edit" type="button" class="btn btn-outline">Batal</button>
           <button id="btn-save-edit" type="submit" class="btn btn-primary">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL PROFIL & GANTI PASSWORD MANDIRI -->
+  <div id="profile-modal" class="modal-backdrop modal-backdrop-dim hidden" role="dialog" aria-modal="true">
+    <div class="modal-card modal-card-center">
+      <div class="modal-header">
+        <div>
+          <h3>Profil Operator</h3>
+          <span class="drag-hint">Kelola informasi akun &amp; ganti password secara mandiri</span>
+        </div>
+        <button id="btn-close-profile" type="button" class="icon-close" aria-label="Tutup">&times;</button>
+      </div>
+      <form id="profile-form" class="modal-body" autocomplete="off">
+        <div class="profile-summary">
+          <div class="profile-avatar" id="profile-avatar">U</div>
+          <div class="profile-meta">
+            <div class="profile-meta-name" id="profile-display-name">-</div>
+            <div class="profile-meta-sub">
+              <span>Username: <strong id="profile-username">-</strong></span>
+              <span class="profile-dot">&bull;</span>
+              <span id="profile-role-pill" class="role-badge">USER</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-divider">Ganti Password</div>
+
+        <div class="field-group">
+          <label for="profile-old-password">Password Lama</label>
+          <input id="profile-old-password" type="password" placeholder="Masukkan password saat ini" required />
+        </div>
+        <div class="field-group">
+          <label for="profile-new-password">Password Baru</label>
+          <input id="profile-new-password" type="password" placeholder="Minimal 6 karakter" minlength="6" required />
+        </div>
+        <div class="field-group">
+          <label for="profile-confirm-password">Konfirmasi Password Baru</label>
+          <input id="profile-confirm-password" type="password" placeholder="Ulangi password baru" minlength="6" required />
+        </div>
+
+        <label class="show-pwd-row">
+          <input id="profile-show-pwd" type="checkbox" />
+          <span>Tampilkan password</span>
+        </label>
+
+        <div id="profile-error" class="alert-error hidden"></div>
+
+        <div class="modal-footer">
+          <button id="btn-cancel-profile" type="button" class="btn btn-outline">Batal</button>
+          <button id="btn-save-profile" type="submit" class="btn btn-primary">Simpan Password</button>
         </div>
       </form>
     </div>

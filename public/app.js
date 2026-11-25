@@ -486,6 +486,34 @@ function closeEditModal() {
   $("edit-modal").classList.add("hidden");
 }
 
+/* ==================== PROFIL & GANTI PASSWORD MANDIRI ==================== */
+function openProfileModal() {
+  if (!currentUser) return;
+  const isAdmin = currentUser.role === "admin";
+  const displayName = currentUser.name || currentUser.username || "-";
+  $("profile-display-name").textContent = displayName;
+  $("profile-username").textContent = currentUser.username || "-";
+  $("profile-avatar").textContent = displayName.trim().charAt(0).toUpperCase() || "U";
+  const rolePill = $("profile-role-pill");
+  rolePill.textContent = isAdmin ? "ADMIN" : "USER";
+  rolePill.classList.toggle("role-admin", isAdmin);
+
+  $("profile-old-password").value = "";
+  $("profile-new-password").value = "";
+  $("profile-confirm-password").value = "";
+  $("profile-show-pwd").checked = false;
+  ["profile-old-password", "profile-new-password", "profile-confirm-password"].forEach((id) => {
+    $(id).type = "password";
+  });
+  $("profile-error").classList.add("hidden");
+  $("profile-modal").classList.remove("hidden");
+  $("profile-old-password").focus();
+}
+
+function closeProfileModal() {
+  $("profile-modal").classList.add("hidden");
+}
+
 /* ==================== EXPORT CSV & EXCEL ==================== */
 function getExportRows() {
   return filteredRecords.map((r) => ({
@@ -587,6 +615,61 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   $("btn-logout").addEventListener("click", () => logout(false));
+  $("btn-open-profile").addEventListener("click", openProfileModal);
+  $("btn-close-profile").addEventListener("click", closeProfileModal);
+  $("btn-cancel-profile").addEventListener("click", closeProfileModal);
+  $("profile-modal").addEventListener("click", (e) => {
+    if (e.target === $("profile-modal")) closeProfileModal();
+  });
+  $("profile-show-pwd").addEventListener("change", (e) => {
+    const t = e.target.checked ? "text" : "password";
+    $("profile-old-password").type = t;
+    $("profile-new-password").type = t;
+    $("profile-confirm-password").type = t;
+  });
+  $("profile-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errEl = $("profile-error");
+    errEl.classList.add("hidden");
+    const oldPassword = $("profile-old-password").value;
+    const newPassword = $("profile-new-password").value;
+    const confirmPassword = $("profile-confirm-password").value;
+
+    if (newPassword.length < 6) {
+      errEl.textContent = "Password baru minimal 6 karakter.";
+      errEl.classList.remove("hidden");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      errEl.textContent = "Konfirmasi password baru tidak cocok.";
+      errEl.classList.remove("hidden");
+      return;
+    }
+    if (newPassword === oldPassword) {
+      errEl.textContent = "Password baru harus berbeda dari password lama.";
+      errEl.classList.remove("hidden");
+      return;
+    }
+
+    const saveBtn = $("btn-save-profile");
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Menyimpan...";
+    try {
+      await apiPost({
+        action: "change_password",
+        old_password: oldPassword,
+        new_password: newPassword,
+      });
+      closeProfileModal();
+      showBanner("Password berhasil diperbarui! Gunakan password baru pada login berikutnya.");
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.remove("hidden");
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Simpan Password";
+    }
+  });
   $("search-input").addEventListener("input", applyFiltersAndRender);
   $("filter-status").addEventListener("change", applyFiltersAndRender);
   $("btn-refresh").addEventListener("click", loadData);

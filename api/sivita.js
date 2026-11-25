@@ -123,6 +123,35 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ status: "success", user: session });
   }
 
+  // 2b. Ganti Password Mandiri (Admin & User — hanya untuk akun yang sedang login)
+  if (action === "change_password") {
+    const oldPassword = String(body.old_password || "");
+    const newPassword = String(body.new_password || "");
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ status: "error", message: "Password lama dan password baru wajib diisi." });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ status: "error", message: "Password baru minimal 6 karakter." });
+    }
+    if (newPassword === oldPassword) {
+      return res.status(400).json({ status: "error", message: "Password baru harus berbeda dari password lama." });
+    }
+    try {
+      const gasRes = await callGas(webhookUrl, {
+        action: "sivita_change_password",
+        username: session.username,
+        old_password: oldPassword,
+        new_password: newPassword,
+      });
+      if (gasRes.status !== "success") {
+        return res.status(400).json({ status: "error", message: gasRes.message || "Gagal memperbarui password." });
+      }
+      return res.status(200).json(gasRes);
+    } catch (err) {
+      return res.status(502).json({ status: "error", message: err.message });
+    }
+  }
+
   // 3. Ambil Data Hasil_DWH + Perbandingan Merah terhadap Sheet1
   if (action === "get_data") {
     try {

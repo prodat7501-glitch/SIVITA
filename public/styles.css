@@ -604,6 +604,29 @@ body {
   font-weight: 600;
 }
 
+.profile-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 12px 5px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.profile-trigger:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+.profile-caret {
+  opacity: 0.8;
+}
+
 /* ==================== MAIN LAYOUT ==================== */
 .main-container {
   width: 100%;
@@ -1280,6 +1303,100 @@ body {
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid var(--slate-100);
+}
+
+/* ==================== MODAL PROFIL (CENTERED) ==================== */
+.modal-backdrop-dim {
+  background: rgba(6, 40, 30, 0.45);
+  backdrop-filter: blur(2px);
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-card-center {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: 440px;
+  max-width: 100%;
+  max-height: calc(100vh - 48px);
+}
+
+.profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--green-50);
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.profile-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--green-900);
+  color: var(--white);
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-meta-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--green-950);
+}
+
+.profile-meta-sub {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--slate-700);
+}
+
+.profile-dot {
+  color: var(--slate-500);
+}
+
+.profile-divider {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--green-900);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--slate-200);
+}
+
+.show-pwd-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--slate-700);
+  cursor: pointer;
+  user-select: none;
+  margin-top: 2px;
+}
+
+.show-pwd-row input[type="checkbox"] {
+  accent-color: var(--green-900);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
 }
 
 @media (max-width: 960px) {
