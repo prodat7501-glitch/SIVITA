@@ -11,6 +11,7 @@ let currentUser = null;
 let allRecords = [];
 let filteredRecords = [];
 const expandedRows = new Set();
+const zoomLevels = new Map(); // sheet_row -> zoom percent (default 100)
 
 const $ = (id) => document.getElementById(id);
 
@@ -201,58 +202,26 @@ function renderInlineScreenshotPanel(rec) {
   const imgUrl = fileId
     ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w1600`
     : rec.screenshot_url || "";
+  const zoom = zoomLevels.get(rec.sheet_row) || 100;
 
-  let ssHtml = "";
+  let bodyHtml = "";
   if (imgUrl) {
-    ssHtml = `
-      <div class="ss-box">
-        <div class="ss-box-header">
-          <span>Tangkapan Layar DWH — NIK ${escapeHtml(rec.nik)}</span>
-          <button type="button" class="btn btn-xs btn-outline" data-toggle-ss="${rec.sheet_row}">Tutup</button>
-        </div>
+    bodyHtml = `
+      <div class="ss-viewport">
         <img
           src="${escapeHtml(imgUrl)}"
           alt="Screenshot DWH ${escapeHtml(rec.nik)}"
           class="ss-img"
+          style="width: ${zoom}%;"
           loading="lazy"
           onerror="this.outerHTML='<div class=\\'ss-empty\\'>Gambar belum dapat dimuat dari Google Drive. Pastikan folder Drive dibagikan minimal <b>Siapa saja yang memiliki link (Lihat)</b>.</div>'"
         />
       </div>
     `;
   } else {
-    ssHtml = `
-      <div class="ss-box">
-        <div class="ss-box-header">
-          <span>Tangkapan Layar DWH — NIK ${escapeHtml(rec.nik)}</span>
-          <button type="button" class="btn btn-xs btn-outline" data-toggle-ss="${rec.sheet_row}">Tutup</button>
-        </div>
-        <div class="ss-empty">
-          Tangkapan layar belum tertaut ke Google Drive untuk NIK ini.<br/>
-          Jalankan <code>python sync_screenshots_to_drive.py</code> untuk mengunggah foto lama ke folder Drive SIVITA.
-        </div>
-      </div>
-    `;
-  }
-
-  let diffHtml = "";
-  if (rec.has_diff && rec.diffs.length > 0) {
-    const items = rec.diffs
-      .map(
-        (d) =>
-          `<li><strong>${escapeHtml(d.field)}</strong><br/>Sheet 1 (Basis Data): <b>${escapeHtml(d.master)}</b><br/>Hasil DWH: <b>${escapeHtml(d.dwh || "-")}</b></li>`
-      )
-      .join("");
-    diffHtml = `
-      <div class="diff-box">
-        <h4>Peringatan Perbedaan dengan Basis Data (Sheet 1)</h4>
-        <ul class="diff-list">${items}</ul>
-      </div>
-    `;
-  } else {
-    diffHtml = `
-      <div class="diff-box">
-        <h4>Status Kesesuaian Basis Data (Sheet 1)</h4>
-        <div class="diff-ok">Seluruh elemen data sesuai dengan Basis Data Sheet 1.</div>
+    bodyHtml = `
+      <div class="ss-empty">
+        Tangkapan layar belum tersedia untuk NIK ini.
       </div>
     `;
   }
@@ -260,9 +229,20 @@ function renderInlineScreenshotPanel(rec) {
   return `
     <tr class="inline-panel-row">
       <td colspan="19">
-        <div class="inline-panel">
-          ${ssHtml}
-          ${diffHtml}
+        <div class="inline-panel-sticky">
+          <div class="ss-box">
+            <div class="ss-box-header">
+              <span>Tangkapan Layar DWH — ${escapeHtml(rec.nama || "-")} (${escapeHtml(rec.nik)})</span>
+              <div class="ss-controls">
+                <button type="button" class="btn btn-xs btn-outline" data-zoom-out="${rec.sheet_row}" title="Perkecil">− Zoom Out</button>
+                <span class="zoom-label">${zoom}%</span>
+                <button type="button" class="btn btn-xs btn-outline" data-zoom-in="${rec.sheet_row}" title="Perbesar">+ Zoom In</button>
+                <button type="button" class="btn btn-xs btn-outline" data-zoom-reset="${rec.sheet_row}" title="Reset 100%">Reset</button>
+                <button type="button" class="btn btn-xs btn-primary" data-toggle-ss="${rec.sheet_row}">Tutup</button>
+              </div>
+            </div>
+            ${bodyHtml}
+          </div>
         </div>
       </td>
     </tr>
@@ -487,13 +467,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Delegasi klik tombol "Lihat Screenshot DWH" dan "Edit" pada tabel
+  // Delegasi klik tombol "Lihat DWH", Zoom In/Out/Reset, dan "Edit" pada tabel
   $("table-body").addEventListener("click", (e) => {
     const ssBtn = e.target.closest("[data-toggle-ss]");
     if (ssBtn) {
       const rowNum = Number(ssBtn.getAttribute("data-toggle-ss"));
-      if (expandedRows.has(rowNum)) expandedRows.delete(rowNum);
-      else expandedRows.add(rowNum);
+      if (expandedRows.has(rowNum)) {
+        expandedRows.delete(rowNum);
+        zoomLevels.delete(rowNum);
+      } else {
+        expandedRows.add(rowNum);
+        zoomLevels.set(rowNum, 100);
+      }
+      renderTable();
+      return;
+    }
+    const zIn = e.target.closest("[data-zoom-in]");
+    if (zIn) {
+      const rowNum = Number(zIn.getAttribute("data-zoom-in"));
+      const cur = zoomLevels.get(rowNum) || 100;
+      zoomLevels.set(rowNum, Math.min(250, cur + 25));
+      renderTable();
+      return;
+    }
+    const zOut = e.target.closest("[data-zoom-out]");
+    if (zOut) {
+      const rowNum = Number(zOut.getAttribute("data-zoom-out"));
+      const cur = zoomLevels.get(rowNum) || 100;
+      zoomLevels.set(rowNum, Math.max(50, cur - 25));
+      renderTable();
+      return;
+    }
+    const zReset = e.target.closest("[data-zoom-reset]");
+    if (zReset) {
+      const rowNum = Number(zReset.getAttribute("data-zoom-reset"));
+      zoomLevels.set(rowNum, 100);
       renderTable();
       return;
     }
