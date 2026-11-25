@@ -230,7 +230,8 @@ function enrichKabProvDiffs(records) {
       diffs.push({ field: "PROVINSI", master: expectedProv, dwh: String(rec.provinsi || "").trim() });
     }
 
-    return { ...rec, diffs, has_diff: diffs.length > 0 };
+    const hasDiff = diffs.length > 0;
+    return { ...rec, diffs, has_diff: hasDiff, kesimpulan: hasDiff ? "ANOMALI" : "VALID" };
   });
 }
 
