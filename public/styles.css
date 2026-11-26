@@ -90,6 +90,318 @@ body {
   right: -100px;
 }
 
+/* ==================== PETA TITIK KABUPATEN GORONTALO & SPLASH LOGO SHIMMER ==================== */
+.login-map-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.login-map-svg {
+  width: min(92vw, 1220px);
+  max-height: 86vh;
+  object-fit: contain;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 18px rgba(52, 211, 153, 0.28));
+  animation: mapBreathe 7s ease-in-out infinite;
+}
+
+@keyframes mapBreathe {
+  0%, 100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.012);
+  }
+}
+
+.map-sparkle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ecfdf5;
+  box-shadow: 0 0 10px 2px rgba(110, 231, 183, 0.85);
+  animation: sparkleTwinkle 4s ease-in-out infinite;
+}
+
+.sp-1 { top: 22%; left: 26%; animation-delay: 0s; }
+.sp-2 { top: 34%; right: 22%; animation-delay: 0.9s; }
+.sp-3 { bottom: 28%; left: 32%; animation-delay: 1.7s; }
+.sp-4 { bottom: 24%; right: 28%; animation-delay: 2.4s; }
+.sp-5 { top: 18%; right: 36%; animation-delay: 3.1s; width: 4px; height: 4px; }
+.sp-6 { bottom: 38%; left: 19%; animation-delay: 1.2s; width: 4px; height: 4px; }
+
+@keyframes sparkleTwinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+
+.login-splash {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 28px;
+  padding: 20px;
+}
+
+.splash-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.splash-welcome-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 500;
+  color: rgba(236, 253, 245, 0.92);
+  letter-spacing: -0.2px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+}
+
+.splash-brand-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 16px;
+  border-radius: 10px;
+  background: rgba(236, 253, 245, 0.94);
+  color: var(--green-950);
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.splash-subtitle {
+  margin: 0;
+  font-size: clamp(14px, 1.6vw, 17px);
+  color: rgba(209, 250, 229, 0.88);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
+}
+
+.splash-org-pill {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(167, 243, 208, 0.36);
+  backdrop-filter: blur(8px);
+  color: #ecfdf5;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+.splash-logo-zone {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(167, 243, 208, 0.38);
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.16), transparent 68%);
+  pointer-events: none;
+  animation: splashPulse 3.2s ease-out infinite;
+}
+
+.ring-2 {
+  animation-delay: 1.6s;
+}
+
+@keyframes splashPulse {
+  0% {
+    transform: scale(0.84);
+    opacity: 0.78;
+  }
+  100% {
+    transform: scale(1.36);
+    opacity: 0;
+  }
+}
+
+.splash-logo-btn {
+  position: relative;
+  z-index: 2;
+  width: 168px;
+  height: 168px;
+  padding: 0;
+  border-radius: 36px;
+  border: 2px solid rgba(167, 243, 208, 0.55);
+  background: linear-gradient(145deg, #073024, #0d4a37);
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.48),
+    0 0 38px rgba(52, 211, 153, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.splash-logo-btn:hover {
+  transform: scale(1.065) translateY(-3px);
+  border-color: #a7f3d0;
+  box-shadow:
+    0 28px 65px rgba(0, 0, 0, 0.52),
+    0 0 54px rgba(52, 211, 153, 0.55),
+    inset 0 1px 2px rgba(255, 255, 255, 0.35);
+}
+
+.splash-logo-btn:active {
+  transform: scale(0.98);
+}
+
+.splash-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Efek Shimmer diagonal berkilau melintasi logo SIVITA */
+.splash-shimmer {
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(
+    115deg,
+    transparent 34%,
+    rgba(255, 255, 255, 0.08) 44%,
+    rgba(236, 253, 245, 0.58) 50%,
+    rgba(255, 255, 255, 0.08) 56%,
+    transparent 66%
+  );
+  transform: translateX(-120%) skewX(-18deg);
+  animation: logoShimmer 3.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes logoShimmer {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  42%, 100% {
+    transform: translateX(130%) skewX(-18deg);
+  }
+}
+
+.splash-cta-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(167, 243, 208, 0.35);
+  background: rgba(6, 40, 30, 0.55);
+  backdrop-filter: blur(8px);
+  color: #d1fae5;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+
+.splash-cta-hint:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #a7f3d0;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.splash-footer {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(209, 250, 229, 0.72);
+  white-space: nowrap;
+}
+
+/* Modal backdrop untuk Form Login saat logo diklik */
+.login-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(3, 22, 16, 0.72);
+  backdrop-filter: blur(7px);
+}
+
+.login-modal-animate {
+  animation: loginModalIn 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes loginModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.93) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.login-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--slate-200);
+  background: var(--white);
+  color: var(--slate-700);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.login-modal-close:hover {
+  background: var(--red-50);
+  color: var(--red-700);
+  border-color: #fecaca;
+}
+
 .login-container {
   position: relative;
   z-index: 2;

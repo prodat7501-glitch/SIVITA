@@ -173,7 +173,25 @@ function showBanner(msg, isError = false) {
 }
 
 /* ==================== AUTH / LOGIN ==================== */
+function openLoginModal() {
+  const modal = $("login-modal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  $("login-error").classList.add("hidden");
+  const uInput = $("login-username");
+  if (uInput) {
+    if (!uInput.value) uInput.value = "admin";
+    $("login-password").focus();
+  }
+}
+
+function closeLoginModal() {
+  const modal = $("login-modal");
+  if (modal) modal.classList.add("hidden");
+}
+
 function showLogin() {
+  closeLoginModal();
   $("login-view").classList.remove("hidden");
   $("app-view").classList.add("hidden");
 }
@@ -842,6 +860,26 @@ function downloadExcel() {
 
 /* ==================== EVENT LISTENERS ==================== */
 document.addEventListener("DOMContentLoaded", async () => {
+  // Buka / tutup modal login dari klik logo SIVITA besar (splash peta Kab. Gorontalo)
+  const openLoginBtn = $("btn-open-login");
+  if (openLoginBtn) openLoginBtn.addEventListener("click", openLoginModal);
+  document.querySelectorAll("[data-trigger-login]").forEach((el) => {
+    el.addEventListener("click", openLoginModal);
+  });
+  const closeLoginBtn = $("btn-close-login");
+  if (closeLoginBtn) closeLoginBtn.addEventListener("click", closeLoginModal);
+  const loginModal = $("login-modal");
+  if (loginModal) {
+    loginModal.addEventListener("click", (e) => {
+      if (e.target === loginModal) closeLoginModal();
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && loginModal && !loginModal.classList.contains("hidden")) {
+      closeLoginModal();
+    }
+  });
+
   // Role tab switcher pada halaman login
   const roleBtns = document.querySelectorAll("[data-fill-role]");
   roleBtns.forEach((btn) => {
