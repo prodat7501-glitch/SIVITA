@@ -233,6 +233,13 @@ function normCmp(val) {
   return String(val ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
+function isKabupatenGorontalo(kabKota, prov) {
+  const k = normCmp(kabKota);
+  const p = normCmp(prov);
+  if (p && p !== "GORONTALO") return false;
+  return k === "GORONTALO" || k === "KABGORONTALO" || k === "KABUPATENGORONTALO";
+}
+
 function enrichKabProvDiffs(records) {
   return records.map((rec) => {
     const ks = String(rec.kesimpulan || "").toUpperCase().trim();
@@ -252,7 +259,10 @@ function enrichKabProvDiffs(records) {
     }
 
     const hasDiff = diffs.length > 0;
-    return { ...rec, diffs, has_diff: hasDiff, kesimpulan: hasDiff ? "ANOMALI" : "VALID" };
+    const computedStatus = isKabupatenGorontalo(rec.kab_kota, rec.provinsi)
+      ? "Penduduk Kabupaten Gorontalo"
+      : "Bukan Penduduk Kabupaten Gorontalo";
+    return { ...rec, diffs, has_diff: hasDiff, kesimpulan: hasDiff ? "ANOMALI" : "VALID", status: computedStatus };
   });
 }
 
