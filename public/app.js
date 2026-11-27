@@ -266,13 +266,29 @@ function enrichKabProvDiffs(records) {
   });
 }
 
+function parseUpdatedAtMs(val) {
+  const s = String(val || "").trim();
+  if (!s) return 0;
+  const t = Date.parse(s.replace(" ", "T"));
+  return Number.isFinite(t) ? t : 0;
+}
+
+function sortRecordsNewestFirst(records) {
+  return [...records].sort((a, b) => {
+    const tb = parseUpdatedAtMs(b.updated_at);
+    const ta = parseUpdatedAtMs(a.updated_at);
+    if (tb !== ta) return tb - ta;
+    return (Number(b.sheet_row) || 0) - (Number(a.sheet_row) || 0);
+  });
+}
+
 /* ==================== DATA LOADING & FILTERING ==================== */
 async function loadData() {
   const tbody = $("table-body");
   tbody.innerHTML = `<tr><td colspan="20" class="empty-cell">Sedang Memuat Data...</td></tr>`;
   try {
     const res = await apiPost({ action: "get_data" });
-    allRecords = enrichKabProvDiffs(Array.isArray(res.records) ? res.records : []);
+    allRecords = sortRecordsNewestFirst(enrichKabProvDiffs(Array.isArray(res.records) ? res.records : []));
     populateWilayahFilters();
     updateKpis();
     applyFiltersAndRender();
